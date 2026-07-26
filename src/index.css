@@ -16,10 +16,30 @@
 /* Custom global overrides for high density scrollbars and selection */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #141414 transparent;
+  scrollbar-color: #111111 transparent;
 }
 
 ::selection {
-  background-color: #141414;
-  color: #FAF9F6;
+  background-color: #E6461A;
+  color: #F7F7F3;
+}
+
+/* Typography Base Polish */
+@layer base {
+  body {
+    @apply font-sans text-[#111111] bg-[#F7F7F3] antialiased;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-sans tracking-tight;
+  }
+
+  p {
+    @apply max-w-[70ch];
+  }
+
+  /* Technical Mono Labels */
+  .tech-label {
+    @apply font-mono uppercase tracking-widest text-[10.5px] font-bold;
+  }
 }
