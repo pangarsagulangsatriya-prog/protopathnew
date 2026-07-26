@@ -15,11 +15,9 @@ import {
   Zap,
   ZoomIn,
   ZoomOut,
-  Maximize2,
-  RotateCcw,
   Info,
-  CheckCircle,
   X,
+  AlertTriangle,
 } from 'lucide-react';
 
 interface StagePanelProps {
@@ -28,6 +26,8 @@ interface StagePanelProps {
   bodyImpulse: BodyImpulse | undefined;
   spatialOutput: SpatialOutput | undefined;
   diagramAsset: DiagramAsset | undefined;
+  activeEntityIds?: string[];
+  selectedEntityId?: string;
 }
 
 export const StagePanel: React.FC<StagePanelProps> = ({
@@ -36,28 +36,31 @@ export const StagePanel: React.FC<StagePanelProps> = ({
   bodyImpulse,
   spatialOutput,
   diagramAsset,
+  activeEntityIds = [],
+  selectedEntityId,
 }) => {
-  const [activeTab, setActiveTab] = useState<'PLAN' | 'BODY' | 'BOARD' | 'FORCES'>('BOARD');
+  const [activeTab, setActiveTab] = useState<'PLAN' | 'BODY' | 'BOARD' | 'FORCES'>('PLAN');
   const [zoomLevel, setZoomLevel] = useState<number>(1);
   const [selectedLocus, setSelectedLocus] = useState<AnatomicalLocus | 'ALL'>('ALL');
   const [showMetadataModal, setShowMetadataModal] = useState<boolean>(false);
 
   const isGlitch = pair.id === 'pair-c1-3-2';
+  const hasMismatch = diagramAsset?.status === 'content-mismatch-review-required';
 
   const handleZoomIn = () => setZoomLevel((z) => Math.min(z + 0.25, 2.5));
   const handleZoomOut = () => setZoomLevel((z) => Math.max(z - 0.25, 0.5));
   const handleResetZoom = () => setZoomLevel(1);
 
   return (
-    <div className="w-full h-full bg-[#FFFFFF] border border-[#111111] p-3 font-mono text-[#111111] flex flex-col justify-between overflow-hidden select-none">
+    <div className="w-full h-full bg-[#FFFFFF] border border-[#111111] p-3 font-sans text-[#111111] flex flex-col justify-between overflow-hidden select-none">
       {/* Top Tab Bar & Board Controls */}
       <div className="flex flex-wrap items-center justify-between border-b border-[#111111] pb-2 mb-2 gap-2">
         {/* Navigation Tabs */}
-        <div className="flex items-center gap-1 bg-[#EFEFEB] p-0.5 border border-[#111111]/20">
+        <div className="flex items-center gap-1 bg-[#EFEFEB] p-0.5 border border-[#111111]/20 font-mono">
           {[
-            { id: 'BOARD', label: 'ARCHITECTURAL BOARD', icon: ImageIcon },
             { id: 'PLAN', label: 'STAGE PLAN', icon: Layout },
             { id: 'BODY', label: 'BODY STUDY', icon: User },
+            { id: 'BOARD', label: 'ARCHITECTURAL BOARD', icon: ImageIcon },
             { id: 'FORCES', label: 'FORCE RELATION', icon: Zap },
           ].map((tab) => {
             const Icon = tab.icon;
@@ -81,7 +84,7 @@ export const StagePanel: React.FC<StagePanelProps> = ({
 
         {/* Board Zoom & Info Controls */}
         {activeTab === 'BOARD' && (
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 font-mono">
             <button
               onClick={handleZoomIn}
               className="p-1 bg-[#EFEFEB] hover:bg-[#111111] hover:text-[#F7F7F3] border border-[#111111]/30 cursor-pointer"
@@ -99,7 +102,7 @@ export const StagePanel: React.FC<StagePanelProps> = ({
             <button
               onClick={handleResetZoom}
               className="px-1.5 py-1 text-[9px] font-bold bg-[#EFEFEB] hover:bg-[#111111] hover:text-[#F7F7F3] border border-[#111111]/30 cursor-pointer"
-              title="Reset Zoom (100%)"
+              title="Reset Zoom"
             >
               {Math.round(zoomLevel * 100)}%
             </button>
@@ -115,20 +118,22 @@ export const StagePanel: React.FC<StagePanelProps> = ({
       </div>
 
       {/* Main Content Stage Viewport */}
-      <div className="flex-1 bg-[#F7F7F3] border border-[#111111] overflow-auto relative flex items-center justify-center p-2 scrollbar-thin">
-        {/* TAB 1: ARCHITECTURAL BOARD */}
-        {activeTab === 'BOARD' && (
-          <div
-            className="w-full h-full flex items-center justify-center transition-transform duration-200"
-            style={{ transform: `scale(${zoomLevel})`, transformOrigin: 'center center' }}
-          >
-            <ArchitecturalBoardSVG pairId={pair.id} className="max-w-full max-h-full" />
+      <div className="flex-1 bg-[#F7F7F3] border border-[#111111] overflow-auto relative flex flex-col p-2 scrollbar-thin">
+        
+        {/* Warning Banner for Mismatch */}
+        {hasMismatch && activeTab === 'BOARD' && (
+          <div className="absolute top-2 left-2 right-2 z-10 bg-amber-100 border border-amber-500 text-amber-900 p-2 flex items-start gap-2 text-xs font-mono shadow-md">
+            <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-amber-600" />
+            <div>
+              <span className="font-bold block">CONTENT MISMATCH REVIEW REQUIRED</span>
+              <span>The visible claimed code in this diagram conflicts with the latest detailed record. This asset is under review.</span>
+            </div>
           </div>
         )}
 
-        {/* TAB 2: STAGE PLAN */}
+        {/* TAB 1: STAGE PLAN */}
         {activeTab === 'PLAN' && (
-          <div className="w-full h-full p-4 flex flex-col justify-between bg-[#FFFFFF] text-[#111111]">
+          <div className="w-full h-full p-4 flex flex-col justify-between bg-[#FFFFFF] text-[#111111] font-mono">
             <div className="border-b border-[#111111] pb-2 mb-3 flex justify-between items-center">
               <div>
                 <span className="text-[9px] bg-[#111111] text-[#F7F7F3] px-1.5 py-0.5 font-bold uppercase">
@@ -146,50 +151,29 @@ export const StagePanel: React.FC<StagePanelProps> = ({
             {/* Generated Interactive Stage Vector Graphic */}
             <div className="flex-1 flex items-center justify-center border border-[#111111]/20 p-4 bg-[#F7F7F3] relative overflow-hidden">
               <svg viewBox="0 0 800 240" className="w-full h-auto">
-                {/* Stage Boundary */}
                 <rect x="10" y="10" width="780" height="220" fill="#FFFFFF" stroke="#111111" strokeWidth="1" strokeDasharray="3,3" />
-
-                {/* Grid Lines */}
                 {Array.from({ length: 9 }).map((_, i) => (
                   <line key={i} x1={i * 90 + 40} y1="10" x2={i * 90 + 40} y2="230" stroke="#D9D9D3" strokeWidth="1" />
                 ))}
-
-                {/* Primary Stage Axis */}
                 <line x1="50" y1="120" x2="750" y2="120" stroke="#111111" strokeWidth="3" />
                 <line x1="50" y1="114" x2="750" y2="114" stroke="#111111" strokeWidth="1" />
                 <line x1="50" y1="126" x2="750" y2="126" stroke="#111111" strokeWidth="1" />
-
-                {/* Node A (Origin 0m) */}
                 <rect x="40" y="110" width="20" height="20" fill="#111111" />
                 <text x="50" y="95" fontFamily="monospace" fontSize="10" fontWeight="900" textAnchor="middle">NODE A (0m)</text>
-
-                {/* Node B (Terminal 15m) */}
                 <rect x="740" y="110" width="20" height="20" fill="#111111" />
                 <text x="750" y="95" fontFamily="monospace" fontSize="10" fontWeight="900" textAnchor="middle">NODE B (15m)</text>
-
-                {/* Checkpoint 12.15m (Position x = 50 + (12.15/15)*700 = 617) */}
                 <line x1="617" y1="20" x2="617" y2="220" stroke="#111111" strokeWidth="1" strokeDasharray="2,2" />
                 <circle cx="617" cy="120" r="10" fill="#FFFFFF" stroke="#111111" strokeWidth="2" />
                 <text x="617" y="40" fontFamily="monospace" fontSize="10" fontWeight="800" textAnchor="middle">CHECKPOINT 12.15m</text>
-
-                {/* Performer Figure Top Down */}
                 <circle cx="580" cy="120" r="14" fill="#FFFFFF" stroke="#111111" strokeWidth="2" />
                 <line x1="580" y1="98" x2="580" y2="142" stroke="#111111" strokeWidth="3" />
                 <text x="580" y="80" fontFamily="sans-serif" fontSize="9" fontWeight="800" textAnchor="middle">PERFORMER</text>
-
-                {/* Regulatory Object (R) */}
                 <circle cx="670" cy="120" r="12" fill="#FFFFFF" stroke="#E6461A" strokeWidth="2.5" />
                 <text x="670" y="124" fontFamily="monospace" fontSize="11" fontWeight="900" fill="#E6461A" textAnchor="middle">R</text>
-
-                {/* Pressure Field */}
                 <rect x="580" y="70" width="130" height="100" fill="rgba(230, 70, 26, 0.15)" stroke="#E6461A" strokeWidth="1" strokeDasharray="3,3" />
-
-                {/* Prohibition Force Vector */}
                 <line x1="740" y1="120" x2="640" y2="120" stroke="#E6461A" strokeWidth="3" />
                 <polygon points="635,120 645,115 645,125" fill="#E6461A" />
                 <text x="680" y="60" fontFamily="monospace" fontSize="9" fontWeight="800" fill="#E6461A" textAnchor="middle">PROHIBITION VECTOR</text>
-
-                {/* Forward Drive Vector */}
                 <line x1="300" y1="160" x2="500" y2="160" stroke="#111111" strokeWidth="3" />
                 <polygon points="505,160 495,155 495,165" fill="#111111" />
                 <text x="400" y="180" fontFamily="monospace" fontSize="9" fontWeight="800" textAnchor="middle">FORWARD DRIVE (PULL)</text>
@@ -211,9 +195,19 @@ export const StagePanel: React.FC<StagePanelProps> = ({
           </div>
         )}
 
+        {/* TAB 2: ARCHITECTURAL BOARD */}
+        {activeTab === 'BOARD' && (
+          <div
+            className="flex-1 w-full flex items-center justify-center transition-transform duration-200"
+            style={{ transform: `scale(${zoomLevel})`, transformOrigin: 'center center' }}
+          >
+            <ArchitecturalBoardSVG pairId={pair.id} className="max-w-full max-h-full" />
+          </div>
+        )}
+
         {/* TAB 3: BODY STUDY */}
         {activeTab === 'BODY' && (
-          <div className="w-full h-full p-4 flex flex-col bg-[#FFFFFF] text-[#111111]">
+          <div className="w-full h-full p-4 flex flex-col bg-[#FFFFFF] text-[#111111] font-mono">
             <div className="flex justify-between items-center border-b border-[#111111] pb-2 mb-3">
               <div>
                 <span className="text-[9px] bg-[#111111] text-[#F7F7F3] px-1.5 py-0.5 font-bold uppercase">
@@ -258,25 +252,13 @@ export const StagePanel: React.FC<StagePanelProps> = ({
                     <line x1="115" y1="56" x2="135" y2="90" stroke="#111111" strokeWidth="2" />
                     <line x1="65" y1="120" x2="60" y2="200" stroke="#111111" strokeWidth="2" />
                     <line x1="95" y1="120" x2="100" y2="200" stroke="#111111" strokeWidth="2" />
-
-                    {/* Active Loci */}
-                    {bodyImpulse?.anatomicalLoci.includes('spine') && (
-                      <circle cx="80" cy="80" r="7" fill="#E6461A" className="animate-pulse" />
-                    )}
-                    {bodyImpulse?.anatomicalLoci.includes('pelvis') && (
-                      <circle cx="80" cy="120" r="7" fill="#E6461A" className="animate-pulse" />
-                    )}
+                    {bodyImpulse?.anatomicalLoci.includes('spine') && <circle cx="80" cy="80" r="7" fill="#E6461A" className="animate-pulse" />}
+                    {bodyImpulse?.anatomicalLoci.includes('pelvis') && <circle cx="80" cy="120" r="7" fill="#E6461A" className="animate-pulse" />}
                     {bodyImpulse?.anatomicalLoci.includes('wrist') && (
-                      <>
-                        <circle cx="25" cy="90" r="7" fill="#E6461A" className="animate-pulse" />
-                        <circle cx="135" cy="90" r="7" fill="#E6461A" className="animate-pulse" />
-                      </>
+                      <><circle cx="25" cy="90" r="7" fill="#E6461A" className="animate-pulse" /><circle cx="135" cy="90" r="7" fill="#E6461A" className="animate-pulse" /></>
                     )}
                     {bodyImpulse?.anatomicalLoci.includes('shoulder') && (
-                      <>
-                        <circle cx="45" cy="56" r="7" fill="#E6461A" className="animate-pulse" />
-                        <circle cx="115" cy="56" r="7" fill="#E6461A" className="animate-pulse" />
-                      </>
+                      <><circle cx="45" cy="56" r="7" fill="#E6461A" className="animate-pulse" /><circle cx="115" cy="56" r="7" fill="#E6461A" className="animate-pulse" /></>
                     )}
                   </svg>
                 </div>
@@ -284,7 +266,6 @@ export const StagePanel: React.FC<StagePanelProps> = ({
                   Target Locus: <span className="font-bold text-[#E6461A]">{bodyImpulse?.anatomicalLoci.join(', ')}</span>
                 </div>
               </div>
-
               {/* Side Study */}
               <div className="border border-[#111111] p-3 bg-[#FFFFFF] flex flex-col justify-between">
                 <div className="text-[10px] font-extrabold border-b border-[#111111] pb-1 mb-2">
@@ -297,7 +278,6 @@ export const StagePanel: React.FC<StagePanelProps> = ({
                     <path d="M 70 56 L 110 90" stroke="#111111" strokeWidth="2" />
                     <line x1="110" y1="20" x2="110" y2="180" stroke="#111111" strokeWidth="4" />
                     <line x1="70" y1="130" x2="65" y2="200" stroke="#111111" strokeWidth="2" />
-
                     <line x1="110" y1="130" x2="145" y2="130" stroke="#111111" strokeWidth="2" />
                     <line x1="145" y1="120" x2="145" y2="140" stroke="#111111" strokeWidth="2" />
                   </svg>
@@ -312,7 +292,7 @@ export const StagePanel: React.FC<StagePanelProps> = ({
 
         {/* TAB 4: FORCE RELATION */}
         {activeTab === 'FORCES' && (
-          <div className="w-full h-full p-4 flex flex-col bg-[#FFFFFF] text-[#111111]">
+          <div className="w-full h-full p-4 flex flex-col bg-[#FFFFFF] text-[#111111] font-mono">
             <div className="border-b border-[#111111] pb-2 mb-3">
               <span className="text-[9px] bg-[#111111] text-[#F7F7F3] px-1.5 py-0.5 font-bold uppercase">
                 ABSTRACT FORCE RELATION MATRIX
@@ -346,10 +326,10 @@ export const StagePanel: React.FC<StagePanelProps> = ({
                   </div>
                   <div className="space-y-1.5">
                     <div>
-                      <span className="text-[#888888]">Forward Vector:</span> <span className="font-bold text-[#F7F7F3]">100% Active</span>
+                      <span className="text-[#888888]">Forward Vector:</span> <span className="font-bold text-[#F7F7F3]">ACTIVE</span>
                     </div>
                     <div>
-                      <span className="text-[#888888]">Prohibition Vector:</span> <span className="font-bold text-[#E6461A]">External Pressure</span>
+                      <span className="text-[#888888]">Prohibition Vector:</span> <span className="font-bold text-[#E6461A]">PRESENT</span>
                     </div>
                     <div>
                       <span className="text-[#888888]">Junction Point:</span> <span className="font-bold text-[#F7F7F3]">Pelvis / Spine Axis</span>
@@ -379,14 +359,12 @@ export const StagePanel: React.FC<StagePanelProps> = ({
             >
               <X className="w-4 h-4" />
             </button>
-
             <div className="flex items-center gap-2 border-b border-[#111111] pb-2 mb-3">
               <Info className="w-4 h-4 text-[#E6461A]" />
               <h3 className="text-sm font-black uppercase">
                 DIAGRAM ASSET METADATA &amp; ACCESSIBILITY
               </h3>
             </div>
-
             <div className="space-y-3 text-[11px]">
               <div>
                 <span className="text-[#505050] font-bold block text-[9px] uppercase">ASSET ID</span>
@@ -405,7 +383,9 @@ export const StagePanel: React.FC<StagePanelProps> = ({
               <div className="grid grid-cols-2 gap-2 text-[9.5px]">
                 <div>
                   <span className="text-[#505050] font-bold block">STATUS:</span>
-                  <span className="font-bold text-emerald-600 uppercase">{diagramAsset.status}</span>
+                  <span className={`font-bold uppercase ${diagramAsset.status === 'content-mismatch-review-required' ? 'text-amber-600' : 'text-emerald-600'}`}>
+                    {diagramAsset.status}
+                  </span>
                 </div>
                 <div>
                   <span className="text-[#505050] font-bold block">HOTSPOT MANIFEST:</span>
@@ -413,7 +393,6 @@ export const StagePanel: React.FC<StagePanelProps> = ({
                 </div>
               </div>
             </div>
-
             <div className="mt-4 pt-3 border-t border-[#111111] flex justify-end">
               <button
                 onClick={() => setShowMetadataModal(false)}

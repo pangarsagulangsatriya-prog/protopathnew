@@ -85,8 +85,6 @@ export const Navigation: React.FC<NavigationProps> = ({
   const archiveNavItems = [
     { route: '/score/score-01', label: t.scoreRegistry, icon: Layers },
     { route: '/dataset', label: t.dataset, icon: Database },
-    { route: '/lineage', label: t.lineage, icon: GitCommit },
-    { route: '/raw', label: t.rawRecords, icon: FileJson },
   ];
 
   return (
@@ -164,19 +162,32 @@ export const Navigation: React.FC<NavigationProps> = ({
           {/* View Mode Selector (Explore Page) */}
           {currentRoute === '/explore' && (
             <div className="hidden xl:flex items-center bg-[#1E1E1E] border border-[#333333] p-0.5 min-h-[36px]">
-              {(['explore', 'raw', 'lineage'] as const).map((mode) => (
-                <button
-                  key={mode}
-                  onClick={() => onChangeViewMode(mode)}
-                  className={`px-3 py-1.5 min-h-[36px] text-[10px] font-bold uppercase transition-colors cursor-pointer ${
-                    viewMode === mode
-                      ? 'bg-[#F7F7F3] text-[#111111]'
-                      : 'text-[#A0A0A0] hover:text-[#F7F7F3]'
-                  }`}
-                >
-                  {mode}
-                </button>
-              ))}
+              {(['explore', 'raw', 'lineage'] as const).map((mode) => {
+                const searchParams = new URLSearchParams(window.location.search);
+                const currentInspect = searchParams.get('inspect') || 'explore';
+                const isActive = mode === 'explore' ? currentInspect === 'explore' : currentInspect === mode;
+                
+                return (
+                  <button
+                    key={mode}
+                    onClick={() => {
+                      if (mode === 'explore') {
+                        searchParams.delete('inspect');
+                      } else {
+                        searchParams.set('inspect', mode);
+                      }
+                      onNavigate(`/explore?${searchParams.toString()}`);
+                    }}
+                    className={`px-3 py-1.5 min-h-[36px] text-[10px] font-bold uppercase transition-colors cursor-pointer ${
+                      isActive
+                        ? 'bg-[#F7F7F3] text-[#111111]'
+                        : 'text-[#A0A0A0] hover:text-[#F7F7F3]'
+                    }`}
+                  >
+                    {mode}
+                  </button>
+                );
+              })}
             </div>
           )}
 

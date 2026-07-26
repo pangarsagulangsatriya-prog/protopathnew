@@ -6,7 +6,7 @@ import {
   BodyImpulse,
   SpatialOutput,
 } from '../domain/types';
-import { GitCommit, ArrowDown, ChevronRight, Check, AlertCircle } from 'lucide-react';
+import { GitCommit, ArrowDown } from 'lucide-react';
 
 interface TransformationSpineProps {
   sourceFeature: SourceFeature | undefined;
@@ -15,7 +15,8 @@ interface TransformationSpineProps {
   bodyImpulse: BodyImpulse | undefined;
   spatialOutput: SpatialOutput | undefined;
   onHighlightEntity: (entityId: string) => void;
-  activeEntityId?: string;
+  activeEntityIds?: string[];
+  selectedEntityId?: string;
 }
 
 export const TransformationSpine: React.FC<TransformationSpineProps> = ({
@@ -25,7 +26,8 @@ export const TransformationSpine: React.FC<TransformationSpineProps> = ({
   bodyImpulse,
   spatialOutput,
   onHighlightEntity,
-  activeEntityId,
+  activeEntityIds = [],
+  selectedEntityId,
 }) => {
   const [expandedStep, setExpandedStep] = useState<number | null>(null);
 
@@ -33,19 +35,26 @@ export const TransformationSpine: React.FC<TransformationSpineProps> = ({
     setExpandedStep(expandedStep === stepIndex ? null : stepIndex);
   };
 
-  const isSelected = (id: string | undefined) => !!id && activeEntityId === id;
+  const isSelected = (id: string | undefined) => !!id && selectedEntityId === id;
+  const isRelated = (id: string | undefined) => !!id && activeEntityIds.includes(id);
+
+  const getHighlightClass = (id: string | undefined) => {
+    if (isSelected(id)) return 'border-[#E6461A] bg-[#FFF9F6] shadow-sm ring-2 ring-[#E6461A]';
+    if (isRelated(id)) return 'border-[#E6461A] bg-[#FFF9F6]';
+    return 'border-[#111111] bg-[#F7F7F3] hover:bg-[#EFEFEB]';
+  };
 
   return (
-    <div className="w-full h-full bg-[#FFFFFF] border border-[#111111] p-3 font-mono text-[#111111] flex flex-col overflow-y-auto scrollbar-thin select-none">
+    <div className="w-full h-full bg-[#FFFFFF] border border-[#111111] p-3 font-sans text-[#111111] flex flex-col overflow-y-auto scrollbar-thin select-none">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-[#111111] pb-2 mb-3">
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 font-mono">
           <GitCommit className="w-4 h-4 text-[#E6461A]" />
           <span className="text-[11px] font-black uppercase tracking-wider">
             TRANSFORMATION SPINE
           </span>
         </div>
-        <span className="text-[9px] bg-[#EFEFEB] px-1.5 py-0.5 border border-[#111111]/20 font-bold uppercase">
+        <span className="text-[9px] bg-[#EFEFEB] px-1.5 py-0.5 border border-[#111111]/20 font-bold font-mono uppercase">
           READING CHAIN
         </span>
       </div>
@@ -58,13 +67,9 @@ export const TransformationSpine: React.FC<TransformationSpineProps> = ({
             if (sourceFeature) onHighlightEntity(sourceFeature.id);
             toggleExpand(1);
           }}
-          className={`p-2.5 border transition-all cursor-pointer ${
-            isSelected(sourceFeature?.id)
-              ? 'border-[#E6461A] bg-[#FFF9F6] shadow-sm'
-              : 'border-[#111111] bg-[#F7F7F3] hover:bg-[#EFEFEB]'
-          }`}
+          className={`p-2.5 border transition-all cursor-pointer ${getHighlightClass(sourceFeature?.id)}`}
         >
-          <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center justify-between mb-1 font-mono">
             <div className="flex items-center gap-1.5">
               <span className="text-[9px] bg-[#111111] text-[#F7F7F3] px-1.5 py-0.5 font-bold">
                 01
@@ -79,7 +84,7 @@ export const TransformationSpine: React.FC<TransformationSpineProps> = ({
             {sourceFeature ? sourceFeature.rawValue : 'NO SOURCE RECORD'}
           </div>
           {expandedStep === 1 && sourceFeature && (
-            <div className="mt-2 text-[8.5px] border-t border-[#111111]/20 pt-1.5 text-[#505050] space-y-1">
+            <div className="mt-2 text-[8.5px] border-t border-[#111111]/20 pt-1.5 text-[#505050] space-y-1 font-mono">
               <div>Type: {sourceFeature.featureType}</div>
               <div>Dataset: {sourceFeature.sourceDatasetId}</div>
               <div>Distance: ±{sourceFeature.distanceMeters}m</div>
@@ -98,13 +103,9 @@ export const TransformationSpine: React.FC<TransformationSpineProps> = ({
             if (dataProvocation) onHighlightEntity(dataProvocation.id);
             toggleExpand(2);
           }}
-          className={`p-2.5 border transition-all cursor-pointer ${
-            isSelected(dataProvocation?.id)
-              ? 'border-[#E6461A] bg-[#FFF9F6] shadow-sm'
-              : 'border-[#111111] bg-[#F7F7F3] hover:bg-[#EFEFEB]'
-          }`}
+          className={`p-2.5 border transition-all cursor-pointer ${getHighlightClass(dataProvocation?.id)}`}
         >
-          <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center justify-between mb-1 font-mono">
             <div className="flex items-center gap-1.5">
               <span className="text-[9px] bg-[#111111] text-[#F7F7F3] px-1.5 py-0.5 font-bold">
                 02
@@ -119,7 +120,7 @@ export const TransformationSpine: React.FC<TransformationSpineProps> = ({
             {dataProvocation ? dataProvocation.verbatimText : 'Mapillary traffic regulation'}
           </p>
           {expandedStep === 2 && dataProvocation && (
-            <div className="mt-2 text-[8.5px] border-t border-[#111111]/20 pt-1.5 text-[#505050]">
+            <div className="mt-2 text-[8.5px] border-t border-[#111111]/20 pt-1.5 text-[#505050] font-mono">
               Linked Source Features: {dataProvocation.sourceFeatureIds.length} record(s)
             </div>
           )}
@@ -136,13 +137,9 @@ export const TransformationSpine: React.FC<TransformationSpineProps> = ({
             if (situation) onHighlightEntity(situation.id);
             toggleExpand(3);
           }}
-          className={`p-2.5 border transition-all cursor-pointer ${
-            isSelected(situation?.id)
-              ? 'border-[#E6461A] bg-[#FFF9F6] shadow-sm'
-              : 'border-[#111111] bg-[#F7F7F3] hover:bg-[#EFEFEB]'
-          }`}
+          className={`p-2.5 border transition-all cursor-pointer ${getHighlightClass(situation?.id)}`}
         >
-          <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center justify-between mb-1 font-mono">
             <div className="flex items-center gap-1.5">
               <span className="text-[9px] bg-[#111111] text-[#F7F7F3] px-1.5 py-0.5 font-bold">
                 03
@@ -153,14 +150,14 @@ export const TransformationSpine: React.FC<TransformationSpineProps> = ({
               [{situation ? situation.category : 'SITUATION'}]
             </span>
           </div>
-          <div className="text-[10.5px] font-bold text-[#111111] mb-0.5">
+          <div className="text-[10.5px] font-bold text-[#111111] mb-0.5 font-sans">
             {situation ? situation.title : 'Situation Condition'}
           </div>
-          <p className="text-[9px] text-[#505050] line-clamp-2 leading-tight">
+          <p className="text-[9px] text-[#505050] line-clamp-2 leading-tight font-sans">
             {situation ? situation.spatialCondition : 'Spatial condition description.'}
           </p>
           {expandedStep === 3 && situation && (
-            <div className="mt-2 text-[8.5px] border-t border-[#111111]/20 pt-1.5 text-[#505050] space-y-1">
+            <div className="mt-2 text-[8.5px] border-t border-[#111111]/20 pt-1.5 text-[#505050] space-y-1 font-mono">
               <div>Code: {situation.code}</div>
               <div>Object Tokens: {situation.objectTokens.join(', ')}</div>
               <div>Active Vectors: {situation.activeVectors.join(', ')}</div>
@@ -179,13 +176,9 @@ export const TransformationSpine: React.FC<TransformationSpineProps> = ({
             if (bodyImpulse) onHighlightEntity(bodyImpulse.id);
             toggleExpand(4);
           }}
-          className={`p-2.5 border transition-all cursor-pointer ${
-            isSelected(bodyImpulse?.id)
-              ? 'border-[#E6461A] bg-[#FFF9F6] shadow-sm'
-              : 'border-[#111111] bg-[#F7F7F3] hover:bg-[#EFEFEB]'
-          }`}
+          className={`p-2.5 border transition-all cursor-pointer ${getHighlightClass(bodyImpulse?.id)}`}
         >
-          <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center justify-between mb-1 font-mono">
             <div className="flex items-center gap-1.5">
               <span className="text-[9px] bg-[#111111] text-[#F7F7F3] px-1.5 py-0.5 font-bold">
                 04
@@ -196,14 +189,14 @@ export const TransformationSpine: React.FC<TransformationSpineProps> = ({
               [{bodyImpulse ? bodyImpulse.impulse : 'IMPULSE'}]
             </span>
           </div>
-          <div className="text-[10.5px] font-bold text-[#111111] mb-0.5">
+          <div className="text-[10.5px] font-bold text-[#111111] mb-0.5 font-sans">
             {bodyImpulse ? bodyImpulse.title : 'Body Impulse Response'}
           </div>
-          <p className="text-[9px] text-[#505050] line-clamp-2 leading-tight">
+          <p className="text-[9px] text-[#505050] line-clamp-2 leading-tight font-sans">
             {bodyImpulse ? bodyImpulse.bodyAction : 'Kinetic body action description.'}
           </p>
           {expandedStep === 4 && bodyImpulse && (
-            <div className="mt-2 text-[8.5px] border-t border-[#111111]/20 pt-1.5 text-[#505050] space-y-1">
+            <div className="mt-2 text-[8.5px] border-t border-[#111111]/20 pt-1.5 text-[#505050] space-y-1 font-mono">
               <div>Code: {bodyImpulse.code}</div>
               <div>Anatomical Loci: {bodyImpulse.anatomicalLoci.join(', ')}</div>
               <div>Qualities: {bodyImpulse.kineticQualities.join(', ')}</div>
@@ -222,13 +215,9 @@ export const TransformationSpine: React.FC<TransformationSpineProps> = ({
             if (spatialOutput) onHighlightEntity(spatialOutput.id);
             toggleExpand(5);
           }}
-          className={`p-2.5 border transition-all cursor-pointer ${
-            isSelected(spatialOutput?.id)
-              ? 'border-[#E6461A] bg-[#FFF9F6] shadow-sm'
-              : 'border-[#111111] bg-[#F7F7F3] hover:bg-[#EFEFEB]'
-          }`}
+          className={`p-2.5 border transition-all cursor-pointer ${getHighlightClass(spatialOutput?.id)}`}
         >
-          <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center justify-between mb-1 font-mono">
             <div className="flex items-center gap-1.5">
               <span className="text-[9px] bg-[#111111] text-[#F7F7F3] px-1.5 py-0.5 font-bold">
                 05
@@ -237,10 +226,10 @@ export const TransformationSpine: React.FC<TransformationSpineProps> = ({
             </div>
             <span className="text-[8.5px] text-[#E6461A] font-bold">STAGE STATE</span>
           </div>
-          <div className="text-[10.5px] font-bold text-[#111111]">
+          <div className="text-[10.5px] font-bold text-[#111111] font-sans">
             {spatialOutput ? spatialOutput.label : 'Spatial Output'}
           </div>
-          <p className="text-[9px] text-[#505050] line-clamp-2 leading-tight mt-0.5">
+          <p className="text-[9px] text-[#505050] line-clamp-2 leading-tight mt-0.5 font-sans">
             {spatialOutput ? spatialOutput.description : 'Description of spatial output.'}
           </p>
         </div>
@@ -255,7 +244,7 @@ export const TransformationSpine: React.FC<TransformationSpineProps> = ({
           onClick={() => toggleExpand(6)}
           className="p-2.5 border border-[#111111] bg-[#111111] text-[#F7F7F3] transition-all cursor-pointer hover:bg-[#222222]"
         >
-          <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center justify-between mb-1 font-mono">
             <div className="flex items-center gap-1.5">
               <span className="text-[9px] bg-[#E6461A] text-[#F7F7F3] px-1.5 py-0.5 font-bold">
                 06
@@ -264,7 +253,7 @@ export const TransformationSpine: React.FC<TransformationSpineProps> = ({
             </div>
             <span className="text-[8px] text-[#A0A0A0]">PHYSICAL RESIDUE</span>
           </div>
-          <div className="text-[9.5px] font-bold text-amber-400">
+          <div className="text-[9.5px] font-bold text-amber-400 font-mono">
             {spatialOutput && spatialOutput.residue.length > 0
               ? spatialOutput.residue.join(' • ')
               : 'RESIDUAL TENSION MAINTAINED'}

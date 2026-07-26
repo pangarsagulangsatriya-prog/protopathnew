@@ -86,7 +86,7 @@ const AppContent = () => {
   }, [location]);
 
   return (
-    <div className="min-h-screen bg-[#F7F7F3] text-[#111111] font-mono selection:bg-[#E6461A] selection:text-[#F7F7F3] flex flex-col">
+    <div className="min-h-screen bg-[#F7F7F3] text-[#111111] font-sans selection:bg-[#E6461A] selection:text-[#F7F7F3] flex flex-col">
       {location.pathname !== '/exhibition' && (
         <Navigation
           currentRoute={location.pathname}

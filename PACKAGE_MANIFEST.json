@@ -1,0 +1,114 @@
+{
+  "packageName": "PROTO PATH Antigravity Readable Upload Set",
+  "fileCount": 16,
+  "includedOriginalPackageTextFiles": [
+    "proto_path_web_prompt_package/00_README_PROTO_PATH_WEB.md",
+    "proto_path_web_prompt_package/01_MASTER_BUILD_PROMPT_PROTO_PATH_WEB.md",
+    "proto_path_web_prompt_package/02_INFORMATION_ARCHITECTURE_UI_SPEC.md",
+    "proto_path_web_prompt_package/03_DATA_CONTRACT_SCHEMA_AND_SAMPLE.md",
+    "proto_path_web_prompt_package/04_IMPLEMENTATION_PLAN_AND_TASKS.md",
+    "proto_path_web_prompt_package/05_QA_ACCEPTANCE_TESTS.md",
+    "proto_path_web_prompt_package/06_CONTENT_INGESTION_GUIDE.md",
+    "proto_path_web_prompt_package/07_PLATFORM_ADAPTERS.md",
+    "proto_path_web_prompt_package/PROTO_PATH_WEB_E2E_ALL_IN_ONE.md",
+    "proto_path_full_corpus_integration/README.md",
+    "proto_path_full_corpus_integration/generated_source_audit/KNOWN_SOURCE_CONFLICTS.md",
+    "proto_path_full_corpus_integration/generated_source_audit/SOURCE_PROFILE.md",
+    "proto_path_full_corpus_integration/generated_source_audit/checkpoint_inventory.json",
+    "proto_path_full_corpus_integration/generated_source_audit/data_provocations_extracted.json",
+    "proto_path_full_corpus_integration/generated_source_audit/pdf_code_inventory.json",
+    "proto_path_full_corpus_integration/generated_source_audit/raw_value_linkage_audit.csv",
+    "proto_path_full_corpus_integration/prompts/01_MASTER_FULL_CORPUS_INTEGRATION_PROMPT.md",
+    "proto_path_full_corpus_integration/prompts/02_PDF_TO_SCORE_GRAPH_PROMPT.md",
+    "proto_path_full_corpus_integration/prompts/03_MAPILLARY_DATA_PIPELINE_PROMPT.md",
+    "proto_path_full_corpus_integration/prompts/04_SOURCE_LINKAGE_AND_AMBIGUITY_PROMPT.md",
+    "proto_path_full_corpus_integration/prompts/05_EXISTING_WEB_MIGRATION_PROMPT.md",
+    "proto_path_full_corpus_integration/prompts/06_CANONICAL_SCHEMA_V2.md",
+    "proto_path_full_corpus_integration/prompts/07_DIAGRAM_ASSET_RECONCILIATION_PROMPT.md",
+    "proto_path_full_corpus_integration/prompts/08_QA_AND_COMPLETENESS_PROMPT.md",
+    "proto_path_full_corpus_integration/prompts/09_AGENT_EXECUTION_SEQUENCE.md",
+    "proto_path_full_corpus_integration/prompts/PROTO_PATH_FULL_CORPUS_ALL_IN_ONE.md"
+  ],
+  "files": [
+    {
+      "path": "00_UPLOAD_ORDER_AND_START_PROMPT.md",
+      "sizeBytes": 1991,
+      "sha256": "97b25b698c93a9dc64f35eab71997a9f7c1dcdd591e1e0433bf8af5387695e59"
+    },
+    {
+      "path": "01_MASTER_CONTEXT_ALL_PACKAGE_TEXT.md",
+      "sizeBytes": 609046,
+      "sha256": "7a48270f27d69d1148de3f93dd5262654d683305eeff02fb3f1e4d1cc660908f"
+    },
+    {
+      "path": "02_CANONICAL_SCORE_COMPLETE_TEXT.md",
+      "sizeBytes": 68154,
+      "sha256": "bbec005b7fd05237e84aa8349a456db7391df5fcc10f2910721281f420288b50"
+    },
+    {
+      "path": "03_SOURCE_AND_DATASET_MANIFEST.md",
+      "sizeBytes": 8010,
+      "sha256": "14867b582b02f1cccc9523190a642d511d79119f26745e99d5b9d4dd86860b01"
+    },
+    {
+      "path": "04_DIAGRAM_ASSET_TEXT_DESCRIPTIONS.md",
+      "sizeBytes": 1917,
+      "sha256": "8388fd0e6cc57c27a0fbc52b95afd2a8da24c902cbc62b4239ec1b128e60c6dd"
+    },
+    {
+      "path": "05_ANTIGRAVITY_MASTER_EXECUTION_PROMPT.md",
+      "sizeBytes": 23498,
+      "sha256": "fdf9d2d068e65aa0be1eaaba1f019d7def63603937d009986454299b98504d48"
+    },
+    {
+      "path": "06_BINARY_AND_DUPLICATE_REPLACEMENT_INDEX.md",
+      "sizeBytes": 783,
+      "sha256": "4a1816a66a1b9941de77301ab188cc7849921e897bb561b98ac0d4ce47c18601"
+    },
+    {
+      "path": "data_chunks/00_DATA_CHUNK_INDEX.md",
+      "sizeBytes": 671,
+      "sha256": "629c10cebdcd9e5807aa972328c138d258c36992a2dde9226f1ee50d259c159d"
+    },
+    {
+      "path": "data_chunks/00_DATA_CHUNK_MANIFEST.json",
+      "sizeBytes": 2129,
+      "sha256": "cf4bf227d7e7d1696c03691bd61fe79506aa72a320d62d779675d3fd9628e4fb"
+    },
+    {
+      "path": "data_chunks/mapillary_points_part_001.jsonl",
+      "sizeBytes": 7097305,
+      "sha256": "5ea46537cce0941be34c4ef16b1aab4386938691880fef0ccac61785d615562f"
+    },
+    {
+      "path": "data_chunks/mapillary_points_part_002.jsonl",
+      "sizeBytes": 7109792,
+      "sha256": "391afb570938149ad0debc69947dabaa97a9129dc55cbf57abca8d40e2c3024b"
+    },
+    {
+      "path": "data_chunks/mapillary_points_part_003.jsonl",
+      "sizeBytes": 7120210,
+      "sha256": "acbcec61e6354d3e34999a49219aff94b0cf29c900e249d72a4088605ab38ce3"
+    },
+    {
+      "path": "data_chunks/mapillary_points_part_004.jsonl",
+      "sizeBytes": 7107930,
+      "sha256": "3abb340429c31e90a2cc0f0f3a5e15ee8b02ddf60822a7f123310f5ffb90d3ce"
+    },
+    {
+      "path": "data_chunks/mapillary_points_part_005.jsonl",
+      "sizeBytes": 7112907,
+      "sha256": "13b9932660a8ce21d2d646d287bbe26ff97c2976a94c0070d8614c90c04cd5da"
+    },
+    {
+      "path": "data_chunks/mapillary_points_part_006.jsonl",
+      "sizeBytes": 3675300,
+      "sha256": "ca4760c74adaa93f9821e731a399871b2387872b89b42a2ef9643eb8ab358720"
+    },
+    {
+      "path": "data_chunks/mapillary_traffic_part_001.jsonl",
+      "sizeBytes": 1361679,
+      "sha256": "3cbab80a632041d0cf29fbb151cb082c38703b9df235e87015c08e3008ce25bc"
+    }
+  ]
+}

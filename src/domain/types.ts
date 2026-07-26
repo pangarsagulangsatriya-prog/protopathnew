@@ -130,7 +130,12 @@ export interface DiagramAsset {
   height?: number;
   alt: string;
   hotspotManifestSrc?: string | null;
-  status: 'available' | 'missing' | 'draft';
+  status:
+    | 'canonical'
+    | 'compatible-pending-review'
+    | 'legacy-draft'
+    | 'content-mismatch-review-required'
+    | 'missing';
 }
 
 export interface SequenceFrame {

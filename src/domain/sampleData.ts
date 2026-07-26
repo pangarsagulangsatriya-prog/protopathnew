@@ -161,7 +161,7 @@ export const INITIAL_DATABASE: ProtoPathDatabase = {
       src: '/assets/diagrams/st-c1-3-1__rt-c1-3-1.png',
       alt: 'Architectural stage notation board showing Mapillary no-right-turn data translated into authority pressure, a performer freezing on the primary axis, spine and pelvis locking, and grip tension remaining active.',
       hotspotManifestSrc: null,
-      status: 'available',
+      status: 'canonical',
     },
     {
       id: 'diagram-c1-3-2',
@@ -169,7 +169,7 @@ export const INITIAL_DATABASE: ProtoPathDatabase = {
       src: '/assets/diagrams/st-c1-3-2__rt-c1-3-2.png',
       alt: 'Architectural stage notation board showing the same no-right-turn source producing conflicting vectors and a localized glitch at the wrist and shoulder while grip, drive, and axis remain active.',
       hotspotManifestSrc: null,
-      status: 'available',
+      status: 'content-mismatch-review-required',
     },
   ],
   sequenceFrames: [
