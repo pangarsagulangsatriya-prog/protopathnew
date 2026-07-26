@@ -1,0 +1,6 @@
+{
+  "name": "Proto Path Simulator",
+  "description": "An interactive spatial score simulator transforming street-level data into stage objects, situations, and body impulses.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

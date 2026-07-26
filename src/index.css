@@ -1,0 +1,25 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  
+  --color-brand-bg: #F5F5F0;
+  --color-brand-card: #FAF9F6;
+  --color-brand-dark: #141414;
+  --color-brand-border: #141414;
+  --color-brand-secondary: #EBEBE6;
+  --color-brand-accent: #2563eb;
+}
+
+/* Custom global overrides for high density scrollbars and selection */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #141414 transparent;
+}
+
+::selection {
+  background-color: #141414;
+  color: #FAF9F6;
+}
