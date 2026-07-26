@@ -3,13 +3,22 @@ import React from 'react';
 interface ArchitecturalBoardSVGProps {
   pairId: string;
   className?: string;
+  activeStep?: 'data' | 'situation' | 'body' | 'output';
 }
 
 export const ArchitecturalBoardSVG: React.FC<ArchitecturalBoardSVGProps> = ({
   pairId,
   className = '',
+  activeStep,
 }) => {
   const isGlitch = pairId === 'pair-c1-3-2';
+  
+  // Calculate opacities based on active step
+  const getOpacity = (zone: 'data' | 'situation' | 'body' | 'output') => {
+    if (!activeStep) return 1; // If no active step provided, fully visible
+    if (activeStep === zone) return 1;
+    return 0.3; // Dim inactive zones
+  };
 
   return (
     <svg
@@ -90,7 +99,7 @@ export const ArchitecturalBoardSVG: React.FC<ArchitecturalBoardSVGProps> = ({
       {/* --- MAIN THREE ZONES --- */}
 
       {/* ZONE 1: DATA TO SPATIAL CONDITION */}
-      <g transform="translate(20, 90)">
+      <g transform="translate(20, 90)" style={{ opacity: getOpacity('data'), transition: 'opacity 0.3s' }}>
         <rect x="0" y="0" width="280" height="680" fill="#FFFFFF" stroke="#111111" strokeWidth="1.5" />
         <rect x="0" y="0" width="280" height="26" fill="#EFEFEB" stroke="#111111" strokeWidth="1" />
         <text x="10" y="17" fontFamily="monospace" fontSize="9" fontWeight="800" fill="#111111">
@@ -183,7 +192,7 @@ export const ArchitecturalBoardSVG: React.FC<ArchitecturalBoardSVGProps> = ({
       </g>
 
       {/* ZONE 2: STAGE GROUND PLAN */}
-      <g transform="translate(310, 90)">
+      <g transform="translate(310, 90)" style={{ opacity: getOpacity('situation'), transition: 'opacity 0.3s' }}>
         <rect x="0" y="0" width="700" height="680" fill="#FFFFFF" stroke="#111111" strokeWidth="1.5" />
         <rect x="0" y="0" width="700" height="26" fill="#EFEFEB" stroke="#111111" strokeWidth="1" />
         <text x="10" y="17" fontFamily="monospace" fontSize="9" fontWeight="800" fill="#111111">
@@ -254,8 +263,8 @@ export const ArchitecturalBoardSVG: React.FC<ArchitecturalBoardSVGProps> = ({
               {/* Glitch Tremor rings if Glitch mode */}
               {isGlitch && (
                 <>
-                  <circle cx="10" cy="-15" r="12" fill="none" stroke="#E6461A" strokeWidth="1.5" strokeDasharray="2,2" className="animate-ping" />
-                  <circle cx="10" cy="15" r="12" fill="none" stroke="#E6461A" strokeWidth="1.5" strokeDasharray="2,2" className="animate-ping" />
+                  <circle cx="10" cy="-15" r="12" fill="none" stroke="#E6461A" strokeWidth="1.5" strokeDasharray="2,2" />
+                  <circle cx="10" cy="15" r="12" fill="none" stroke="#E6461A" strokeWidth="1.5" strokeDasharray="2,2" />
                   <path d="M 15 -25 L 20 -20 L 25 -25" fill="none" stroke="#E6461A" strokeWidth="2" />
                   <path d="M 15 25 L 20 20 L 25 25" fill="none" stroke="#E6461A" strokeWidth="2" />
                   <text x="-40" y="-35" fontFamily="monospace" fontSize="9" fontWeight="800" fill="#E6461A">SHOULDER TREMOR</text>
@@ -322,11 +331,13 @@ export const ArchitecturalBoardSVG: React.FC<ArchitecturalBoardSVGProps> = ({
 
       {/* ZONE 3: BODY RESPONSE AND SPATIAL OUTPUT */}
       <g transform="translate(1020, 90)">
-        <rect x="0" y="0" width="400" height="680" fill="#FFFFFF" stroke="#111111" strokeWidth="1.5" />
-        <rect x="0" y="0" width="400" height="26" fill="#EFEFEB" stroke="#111111" strokeWidth="1" />
-        <text x="10" y="17" fontFamily="monospace" fontSize="9" fontWeight="800" fill="#111111">
-          ZONE 3 — BODY RESPONSE AND SPATIAL OUTPUT
-        </text>
+        {/* A. FRONT / THREE-QUARTER STUDY (BODY) */}
+        <g style={{ opacity: getOpacity('body'), transition: 'opacity 0.3s' }}>
+          <rect x="0" y="0" width="400" height="510" fill="#FFFFFF" stroke="#111111" strokeWidth="1.5" />
+          <rect x="0" y="0" width="400" height="26" fill="#EFEFEB" stroke="#111111" strokeWidth="1" />
+          <text x="10" y="17" fontFamily="monospace" fontSize="9" fontWeight="800" fill="#111111">
+            ZONE 3 — BODY RESPONSE
+          </text>
 
         {/* A. FRONT / THREE-QUARTER STUDY */}
         <g transform="translate(20, 40)">
@@ -418,31 +429,36 @@ export const ArchitecturalBoardSVG: React.FC<ArchitecturalBoardSVGProps> = ({
           </g>
         </g>
 
-        {/* SPATIAL OUTPUT & RESIDUAL BOX */}
-        <g transform="translate(15, 530)">
-          <rect x="0" y="0" width="370" height="135" fill="#111111" stroke="#111111" strokeWidth="1" />
-          <text x="15" y="25" fontFamily="monospace" fontSize="10" fontWeight="900" fill="#F7F7F3">
+        </g>
+
+        {/* SPATIAL OUTPUT & RESIDUAL BOX (OUTPUT) */}
+        <g transform="translate(15, 530)" style={{ opacity: getOpacity('output'), transition: 'opacity 0.3s' }}>
+          <rect x="-15" y="-15" width="400" height="165" fill="#FFFFFF" stroke="#111111" strokeWidth="1.5" />
+          <rect x="-15" y="-15" width="400" height="26" fill="#EFEFEB" stroke="#111111" strokeWidth="1" />
+          <text x="-5" y="2" fontFamily="monospace" fontSize="9" fontWeight="800" fill="#111111">
+            ZONE 4 — SPATIAL OUTPUT
+          </text>
+          
+          <rect x="0" y="30" width="370" height="105" fill="#111111" stroke="#111111" strokeWidth="1" />
+          <text x="15" y="55" fontFamily="monospace" fontSize="10" fontWeight="900" fill="#F7F7F3">
             SPATIAL OUTPUT: {isGlitch ? 'TREMOR LOOP' : 'LOCKED AXIS'}
           </text>
 
-          <text x="15" y="50" fontFamily="sans-serif" fontSize="10" fill="#D9D9D3">
+          <text x="15" y="80" fontFamily="sans-serif" fontSize="10" fill="#D9D9D3">
             {isGlitch
               ? 'Wrist and shoulder vibrate under simultaneous forward drive and prohibition pressure.'
               : 'Forward movement stops while axial alignment and internal muscle torque remain active.'}
           </text>
 
-          <line x1="15" y1="65" x2="355" y2="65" stroke="#D9D9D3" strokeWidth="0.5" opacity="0.4" />
+          <line x1="15" y1="95" x2="355" y2="95" stroke="#D9D9D3" strokeWidth="0.5" opacity="0.4" />
 
-          <text x="15" y="85" fontFamily="monospace" fontSize="9" fontWeight="800" fill="#E6461A">
+          <text x="15" y="115" fontFamily="monospace" fontSize="9" fontWeight="800" fill="#E6461A">
             RESIDUAL:
           </text>
-          <text x="75" y="85" fontFamily="monospace" fontSize="9" fill="#FFFFFF">
+          <text x="75" y="115" fontFamily="monospace" fontSize="9" fill="#FFFFFF">
             {isGlitch
               ? 'GRIP AND DRIVE REMAIN SIMULTANEOUSLY ACTIVE'
               : 'GRIP AND LINEAR TENSION MAINTAINED'}
-          </text>
-          <text x="15" y="105" fontFamily="monospace" fontSize="8" fill="#505050">
-            // STATUS: ACCORD WITH STAGE NOTATION REGISTER
           </text>
         </g>
       </g>
