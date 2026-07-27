@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ProtoPathDatabase } from '../domain/types';
-import { ArchitecturalBoardSVG } from '../components/ArchitecturalBoardSVG';
+import { StageNotationCanvas } from '../notation/StageNotationCanvas';
+import { buildStageNotationModel } from '../notation/model/builder';
 import {
   Play,
   Pause,
@@ -27,6 +28,7 @@ export const ExhibitionPage: React.FC<ExhibitionPageProps> = ({ db, onNavigate }
   const [showMeta, setShowMeta] = useState<boolean>(true);
 
   const currentPair = db.notationPairs[activePairIndex] || db.notationPairs[0];
+  const notationModel = buildStageNotationModel(db, currentPair.id);
 
   // Autoplay
   useEffect(() => {
@@ -114,7 +116,7 @@ export const ExhibitionPage: React.FC<ExhibitionPageProps> = ({ db, onNavigate }
       {/* Main Exhibition Board Viewport */}
       <div className="flex-1 flex items-center justify-center relative my-2 overflow-hidden">
         <div className="w-full h-full max-w-6xl max-h-[80vh] flex items-center justify-center p-2">
-          <ArchitecturalBoardSVG pairId={currentPair.id} className="w-full h-full" />
+          <StageNotationCanvas model={notationModel} mode="full-board" />
         </div>
 
         {/* Floating Metadata Overlay Box */}

@@ -1,21 +1,25 @@
 import React from 'react';
 import { TransformationStep } from './TransformationStepRail';
-import { ArchitecturalBoardSVG } from '../ArchitecturalBoardSVG';
-import { NotationPair, DiagramAsset } from '../../domain/types';
+import { StageNotationCanvas } from '../../notation/StageNotationCanvas';
+import { buildStageNotationModel } from '../../notation/model/builder';
+import { NotationPair, DiagramAsset, ProtoPathDatabase } from '../../domain/types';
 import { Maximize2, AlertTriangle } from 'lucide-react';
 
 interface PerformanceCanvasProps {
   activeStep: TransformationStep;
   pair: NotationPair;
   diagramAsset?: DiagramAsset;
+  db: ProtoPathDatabase;
 }
 
 export const PerformanceCanvas: React.FC<PerformanceCanvasProps> = ({
   activeStep,
   pair,
   diagramAsset,
+  db,
 }) => {
   const hasMismatch = diagramAsset?.status === 'content-mismatch-review-required';
+  const notationModel = buildStageNotationModel(db, pair.id);
 
   return (
     <div className="w-full h-full bg-[#F7F7F3] border border-[#111111] overflow-hidden relative flex flex-col font-sans select-none shadow-sm">
@@ -34,8 +38,7 @@ export const PerformanceCanvas: React.FC<PerformanceCanvasProps> = ({
       )}
 
       <div className="flex-1 w-full h-full flex items-center justify-center p-4">
-        {/* We pass activeStep down to let the SVG handle internal fading/highlighting */}
-        <ArchitecturalBoardSVG pairId={pair.id} activeStep={activeStep} className="w-full max-h-full object-contain" />
+        <StageNotationCanvas model={notationModel} activeStep={activeStep} mode="full-board" />
       </div>
     </div>
   );

@@ -155,6 +155,7 @@ export const ExplorePage: React.FC<ExplorePageProps> = ({
             activeStep={activeStep}
             pair={activePair}
             diagramAsset={diagramAsset}
+            db={db}
           />
         </div>
 

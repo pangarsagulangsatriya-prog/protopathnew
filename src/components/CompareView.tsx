@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ProtoPathDatabase } from '../domain/types';
-import { ArchitecturalBoardSVG } from './ArchitecturalBoardSVG';
+import { StageNotationCanvas } from '../notation/StageNotationCanvas';
+import { buildStageNotationModel } from '../notation/model/builder';
 import { SlidersHorizontal, ArrowRight, Check, Zap, AlertTriangle } from 'lucide-react';
 
 interface CompareViewProps {
@@ -13,6 +14,9 @@ export const CompareView: React.FC<CompareViewProps> = ({ db, onCloseCompare }) 
 
   const pairA = db.notationPairs.find((p) => p.id === 'pair-c1-3-1');
   const pairB = db.notationPairs.find((p) => p.id === 'pair-c1-3-2');
+
+  const modelA = pairA ? buildStageNotationModel(db, pairA.id) : null;
+  const modelB = pairB ? buildStageNotationModel(db, pairB.id) : null;
 
   const sitA = db.situations.find((s) => pairA?.situationIds.includes(s.id));
   const sitB = db.situations.find((s) => pairB?.situationIds.includes(s.id));
@@ -86,7 +90,7 @@ export const CompareView: React.FC<CompareViewProps> = ({ db, onCloseCompare }) 
           </div>
 
           <div className="w-full h-52 bg-[#FFFFFF] border border-[#111111] mb-3 p-1 flex items-center justify-center">
-            <ArchitecturalBoardSVG pairId="pair-c1-3-1" className="w-full h-full" />
+            {modelA && <StageNotationCanvas model={modelA} mode="full-board" />}
           </div>
 
           <div className="space-y-1.5 text-[9.5px] border-t border-[#111111]/20 pt-2">
@@ -130,7 +134,7 @@ export const CompareView: React.FC<CompareViewProps> = ({ db, onCloseCompare }) 
           </div>
 
           <div className="w-full h-52 bg-[#FFFFFF] border border-[#111111] mb-3 p-1 flex items-center justify-center">
-            <ArchitecturalBoardSVG pairId="pair-c1-3-2" className="w-full h-full" />
+            {modelB && <StageNotationCanvas model={modelB} mode="full-board" />}
           </div>
 
           <div className="space-y-1.5 text-[9.5px] border-t border-[#111111]/20 pt-2">
