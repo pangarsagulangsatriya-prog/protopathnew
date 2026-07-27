@@ -1,5 +1,5 @@
 import React from 'react';
-import { ProtoPathDatabase } from '../domain/types';
+import { ProtoPathDatabase } from '../../domain/types';
 import { Layers, MapPin, Compass, CheckCircle2, FileText, ArrowRight } from 'lucide-react';
 
 interface ScorePageProps {

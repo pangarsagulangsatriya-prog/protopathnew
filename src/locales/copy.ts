@@ -40,8 +40,9 @@ export const copy = {
       pairs: 'NOTATION PAIRS',
     },
     actions: {
-      primary: 'WATCH THE TRANSLATION',
-      secondary: 'OPEN RESEARCH INTERFACE',
+      enterScore: 'ENTER THE SCORE',
+      readMethod: 'READ THE METHOD',
+      openArchive: 'OPEN THE ARCHIVE',
     },
     projectContext: {
       label: 'THE PROJECT',
@@ -154,8 +155,9 @@ export const copy = {
       pairs: 'PASANGAN NOTASI',
     },
     actions: {
-      primary: 'LIHAT PROSES TRANSLASI',
-      secondary: 'BUKA INTERFACE RISET',
+      enterScore: 'MASUKI SKOR',
+      readMethod: 'BACA METODE',
+      openArchive: 'BUKA ARSIP',
     },
     projectContext: {
       label: 'PROYEK',

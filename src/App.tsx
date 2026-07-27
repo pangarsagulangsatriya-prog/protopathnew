@@ -1,5 +1,5 @@
 import React, { useState, useEffect, Suspense } from 'react';
-import { BrowserRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { ProtoPathDatabase } from './domain/types';
 import { repository } from './repositories/notationRepository';
@@ -7,12 +7,17 @@ import { Navigation } from './components/Navigation';
 import { LandingPage } from './pages/LandingPage';
 import { getProtoVariants } from './motion/protoMotion';
 
-// Lazy load heavy archive pages
+// Lazy load heavy pages
 const ExplorePage = React.lazy(() => import('./pages/ExplorePage').then(module => ({ default: module.ExplorePage })));
-const ScorePage = React.lazy(() => import('./pages/ScorePage').then(module => ({ default: module.ScorePage })));
-const DatasetPage = React.lazy(() => import('./pages/DatasetPage').then(module => ({ default: module.DatasetPage })));
 const MethodPage = React.lazy(() => import('./pages/MethodPage').then(module => ({ default: module.MethodPage })));
 const ExhibitionPage = React.lazy(() => import('./pages/ExhibitionPage').then(module => ({ default: module.ExhibitionPage })));
+
+// Archive Pages
+const ArchiveLayout = React.lazy(() => import('./pages/archive/ArchiveLayout').then(module => ({ default: module.ArchiveLayout })));
+const ArchiveHome = React.lazy(() => import('./pages/archive/ArchiveHome').then(module => ({ default: module.ArchiveHome })));
+const ScorePage = React.lazy(() => import('./pages/archive/ScorePage').then(module => ({ default: module.ScorePage })));
+const DatasetPage = React.lazy(() => import('./pages/archive/DatasetPage').then(module => ({ default: module.DatasetPage })));
+const ComparePage = React.lazy(() => import('./pages/archive/ComparePage').then(module => ({ default: module.ComparePage })));
 
 // Page transition wrapper
 const PageWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -26,7 +31,6 @@ const PageWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       variants={variants.routeWipe}
       className="w-full h-full"
     >
-      {/* Optional: Add a thin routeWipeLine if desired here, or rely on the fade/slide of routeWipe */}
       {children}
     </motion.div>
   );
@@ -37,7 +41,7 @@ const SuspenseFallback = () => (
   <div className="w-full h-screen flex items-center justify-center bg-[#F7F7F3]">
     <div className="flex items-center gap-2 text-[#111111] font-mono text-[10px] uppercase font-bold tracking-widest">
       <div className="w-2 h-2 bg-[#E6461A] animate-pulse" />
-      <span>LOADING ARCHIVE DATA...</span>
+      <span>LOADING VIEW...</span>
     </div>
   </div>
 );
@@ -55,8 +59,6 @@ const AppContent = () => {
     if (navigator.language.startsWith('id')) return 'ID';
     return 'EN';
   });
-  const [compareMode, setCompareMode] = useState<boolean>(false);
-  const [viewMode, setViewMode] = useState<'explore' | 'raw' | 'lineage' | 'exhibition'>('explore');
 
   const handleToggleLang = () => {
     const newLang = lang === 'EN' ? 'ID' : 'EN';
@@ -73,7 +75,6 @@ const AppContent = () => {
   };
 
   useEffect(() => {
-    // Only scroll to top if we're not just changing query params
     window.scrollTo(0, 0);
   }, [location.pathname]);
 
@@ -93,17 +94,13 @@ const AppContent = () => {
           onNavigate={handleNavigate}
           lang={lang}
           onToggleLang={handleToggleLang}
-          compareMode={compareMode}
-          onToggleCompare={() => setCompareMode(!compareMode)}
-          viewMode={viewMode}
-          onChangeViewMode={setViewMode}
         />
       )}
 
       <main className="flex-1 w-full relative overflow-hidden">
         <AnimatePresence mode="wait">
           {/* @ts-ignore - React Router v6 Routes type doesn't explicitly list key but it's required for AnimatePresence */}
-          <Routes location={location} key={location.pathname}>
+          <Routes location={location} key={location.pathname.split('/')[1] || '/'}>
             
             <Route path="/" element={<PageWrapper><LandingPage db={db} onNavigate={handleNavigate} lang={lang} /></PageWrapper>} />
             
@@ -119,58 +116,7 @@ const AppContent = () => {
                         setActivePairId(id);
                         navigate(`/explore?pair=${id}`, { replace: true });
                       }}
-                      compareMode={compareMode}
-                      onToggleCompare={() => setCompareMode(!compareMode)}
-                      viewMode={viewMode}
-                      onChangeViewMode={setViewMode}
                     />
-                  </Suspense>
-                </PageWrapper>
-              } 
-            />
-            
-            <Route 
-              path="/score/:scoreId" 
-              element={
-                <PageWrapper>
-                  <Suspense fallback={<SuspenseFallback />}>
-                    <ScorePage
-                      db={db}
-                      onNavigate={handleNavigate}
-                      onSelectPair={(pairId) => {
-                        setActivePairId(pairId);
-                        handleNavigate(`/explore?pair=${pairId}`);
-                      }}
-                    />
-                  </Suspense>
-                </PageWrapper>
-              } 
-            />
-            
-            <Route 
-              path="/score" 
-              element={
-                <PageWrapper>
-                  <Suspense fallback={<SuspenseFallback />}>
-                    <ScorePage
-                      db={db}
-                      onNavigate={handleNavigate}
-                      onSelectPair={(pairId) => {
-                        setActivePairId(pairId);
-                        handleNavigate(`/explore?pair=${pairId}`);
-                      }}
-                    />
-                  </Suspense>
-                </PageWrapper>
-              } 
-            />
-            
-            <Route 
-              path="/dataset" 
-              element={
-                <PageWrapper>
-                  <Suspense fallback={<SuspenseFallback />}>
-                    <DatasetPage db={db} onUpdateDatabase={handleUpdateDatabase} />
                   </Suspense>
                 </PageWrapper>
               } 
@@ -198,11 +144,53 @@ const AppContent = () => {
               } 
             />
             
+            {/* Archive Layout & Nested Routes */}
+            <Route path="/archive" element={
+              <PageWrapper>
+                <Suspense fallback={<SuspenseFallback />}>
+                  <ArchiveLayout lang={lang} />
+                </Suspense>
+              </PageWrapper>
+            }>
+              <Route index element={<ArchiveHome db={db} />} />
+              <Route path="scores" element={
+                <ScorePage 
+                  db={db} 
+                  onNavigate={handleNavigate} 
+                  onSelectPair={(id) => {
+                    setActivePairId(id);
+                    navigate(`/explore?pair=${id}`);
+                  }}
+                />
+              } />
+              <Route path="score/:scoreId" element={
+                <ScorePage 
+                  db={db} 
+                  onNavigate={handleNavigate} 
+                  onSelectPair={(id) => {
+                    setActivePairId(id);
+                    navigate(`/explore?pair=${id}`);
+                  }}
+                />
+              } />
+              <Route path="datasets" element={<DatasetPage db={db} onUpdateDatabase={handleUpdateDatabase} />} />
+              <Route path="compare" element={<ComparePage db={db} onCloseCompare={() => navigate('/archive')} />} />
+              <Route path="lineage" element={<div className="p-8 font-bold font-mono">LINEAGE INSPECTOR (WIP)</div>} />
+              <Route path="conflicts" element={<div className="p-8 font-bold font-mono">CONFLICTS (WIP)</div>} />
+              <Route path="document" element={<div className="p-8 font-bold font-mono">DOCUMENT READER (WIP)</div>} />
+              <Route path="*" element={<div className="p-8 font-bold font-mono text-center">404 - ARCHIVE SECTION NOT FOUND</div>} />
+            </Route>
+
+            {/* Legacy Route Redirects */}
+            <Route path="/score" element={<Navigate to="/archive/scores" replace />} />
+            <Route path="/score/:scoreId" element={<Navigate to="/archive/score/:scoreId" replace />} />
+            <Route path="/dataset" element={<Navigate to="/archive/datasets" replace />} />
+            
             <Route 
               path="*" 
               element={
                 <PageWrapper>
-                  <div className="p-8 text-center font-bold tracking-widest uppercase">404 - ARCHIVE SECTION NOT FOUND</div>
+                  <div className="p-8 text-center font-bold tracking-widest uppercase font-mono">404 - PAGE NOT FOUND</div>
                 </PageWrapper>
               } 
             />

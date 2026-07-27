@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { ProtoPathDatabase } from '../domain/types';
 import {
   getPairById,
@@ -15,17 +15,11 @@ import { TransformationStepRail, TransformationStep } from '../components/explor
 import { ContextInspector } from '../components/explore/ContextInspector';
 import { PerformanceCanvas } from '../components/explore/PerformanceCanvas';
 import { CollapsibleTimeline } from '../components/explore/CollapsibleTimeline';
-import { CompareView } from '../components/CompareView';
-import { RawJsonDrawer } from '../components/RawJsonDrawer';
 
 interface ExplorePageProps {
   db: ProtoPathDatabase;
   activePairId: string;
   onSelectPair: (pairId: string) => void;
-  compareMode: boolean;
-  onToggleCompare: () => void;
-  viewMode: 'explore' | 'raw' | 'lineage' | 'exhibition';
-  onChangeViewMode: (mode: 'explore' | 'raw' | 'lineage' | 'exhibition') => void;
 }
 
 const STEPS: TransformationStep[] = ['data', 'situation', 'body', 'output'];
@@ -34,32 +28,17 @@ export const ExplorePage: React.FC<ExplorePageProps> = ({
   db,
   activePairId,
   onSelectPair,
-  compareMode,
-  onToggleCompare,
 }) => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  
   // Step state
   const [activeStep, setActiveStep] = useState<TransformationStep>('data');
   
   // Timeline state
   const [currentFrameIndex, setCurrentFrameIndex] = useState<number>(0);
-
-  // Inspector state derived from URL
-  const inspectMode = searchParams.get('inspect');
-  const isRawDrawerOpen = inspectMode === 'raw';
-  const isLineageDrawerOpen = inspectMode === 'lineage';
   
   // Mobile Inspector Bottom Sheet (for mobile/tablet)
   const [isMobileInspectorOpen, setIsMobileInspectorOpen] = useState(false);
 
-  const handleOpenRawDrawer = () => {
-    setSearchParams(prev => { prev.set('inspect', 'raw'); return prev; });
-  };
-  
-  const handleCloseDrawers = () => {
-    setSearchParams(prev => { prev.delete('inspect'); return prev; });
-  };
+
 
   // Selectors
   const activePair = getPairById(db, activePairId) || db.notationPairs[0];
@@ -110,10 +89,6 @@ export const ExplorePage: React.FC<ExplorePageProps> = ({
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [activeStep]);
-
-  if (compareMode) {
-    return <CompareView db={db} onCloseCompare={onToggleCompare} />;
-  }
 
   return (
     <div className="w-full min-h-screen xl:h-[calc(100vh-50px)] bg-[#F7F7F3] font-sans text-[#111111] flex flex-col justify-between overflow-visible xl:overflow-hidden select-none">
@@ -169,8 +144,16 @@ export const ExplorePage: React.FC<ExplorePageProps> = ({
             bodyImpulse={bodyImpulse}
             spatialOutput={spatialOutput}
             diagramAsset={diagramAsset}
-            onOpenRawDrawer={handleOpenRawDrawer}
+            onOpenRawDrawer={() => {}}
           />
+          <div className="p-3 border-t border-[#111111]/20">
+            <button 
+              onClick={() => window.location.href = `/archive/score/${activePairId}`}
+              className="w-full py-2 bg-[#EFEFEB] hover:bg-[#111111] hover:text-[#F7F7F3] border border-[#111111] font-mono text-[9px] font-bold uppercase transition-colors flex items-center justify-center gap-2"
+            >
+              <span>OPEN RESEARCH SOURCE</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -195,7 +178,6 @@ export const ExplorePage: React.FC<ExplorePageProps> = ({
               bodyImpulse={bodyImpulse}
               spatialOutput={spatialOutput}
               diagramAsset={diagramAsset}
-              onOpenRawDrawer={handleOpenRawDrawer}
             />
           </div>
         </div>
@@ -209,29 +191,6 @@ export const ExplorePage: React.FC<ExplorePageProps> = ({
           onSelectFrame={setCurrentFrameIndex}
         />
       </div>
-
-      {/* RAW JSON DRAWER (Re-used for Metadata) */}
-      <RawJsonDrawer
-        sourceFeature={sourceFeature}
-        isOpen={isRawDrawerOpen}
-        onClose={handleCloseDrawers}
-      />
-      
-      {/* LINEAGE DRAWER (Fallback) */}
-      {isLineageDrawerOpen && (
-        <div className="fixed inset-0 z-50 bg-[#111111]/80 flex items-center justify-center p-4 animate-in fade-in">
-          <div className="bg-[#FFFFFF] p-8 max-w-md w-full border border-[#111111] flex flex-col gap-4 shadow-2xl">
-            <h2 className="font-bold font-mono text-xl">LINEAGE INSPECTOR</h2>
-            <p className="text-[14px]">Lineage view is currently in draft status and will be fully implemented in a future phase.</p>
-            <button 
-              onClick={handleCloseDrawers}
-              className="bg-[#111111] text-[#F7F7F3] px-4 py-2 text-[11px] font-bold font-mono tracking-widest mt-4 hover:bg-[#E6461A] transition-colors"
-            >
-              CLOSE
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

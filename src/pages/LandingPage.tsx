@@ -44,8 +44,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ db, lang, onNavigate }
           desc2={t.hero.desc2}
         />
         <PublicActions 
-          primaryLabel={t.actions.primary}
-          secondaryLabel={t.actions.secondary}
+          enterScoreLabel={t.actions.enterScore}
+          readMethodLabel={t.actions.readMethod}
+          openArchiveLabel={t.actions.openArchive}
           onNavigate={handleNavigate}
         />
       </div>

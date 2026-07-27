@@ -19,17 +19,12 @@ import {
 import { Link } from 'react-router-dom';
 import { motion, useReducedMotion } from 'motion/react';
 import { copy, Language } from '../locales/copy';
-import { ResearchArchiveMenu } from './landing/ResearchArchiveMenu';
 
 interface NavigationProps {
   currentRoute: string;
   onNavigate: (route: string) => void;
   lang: Language;
   onToggleLang: () => void;
-  compareMode: boolean;
-  onToggleCompare: () => void;
-  viewMode: 'explore' | 'raw' | 'lineage' | 'exhibition';
-  onChangeViewMode: (mode: 'explore' | 'raw' | 'lineage' | 'exhibition') => void;
 }
 
 export const Navigation: React.FC<NavigationProps> = ({
@@ -37,10 +32,6 @@ export const Navigation: React.FC<NavigationProps> = ({
   onNavigate,
   lang,
   onToggleLang,
-  compareMode,
-  onToggleCompare,
-  viewMode,
-  onChangeViewMode,
 }) => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -77,14 +68,10 @@ export const Navigation: React.FC<NavigationProps> = ({
 
   const publicNavItems = [
     { route: '/', label: t.project, icon: Home },
-    { route: '/method', label: t.process, icon: BookOpen },
     { route: '/explore', label: t.explore, icon: Compass },
+    { route: '/method', label: t.process, icon: BookOpen },
     { route: '/exhibition', label: t.exhibition, icon: MonitorPlay },
-  ];
-
-  const archiveNavItems = [
-    { route: '/score/score-01', label: t.scoreRegistry, icon: Layers },
-    { route: '/dataset', label: t.dataset, icon: Database },
+    { route: '/archive', label: t.researchArchive, icon: Database },
   ];
 
   return (
@@ -148,65 +135,10 @@ export const Navigation: React.FC<NavigationProps> = ({
               </Link>
             );
           })}
-          
-          <ResearchArchiveMenu 
-            label={t.researchArchive} 
-            items={archiveNavItems} 
-            onNavigate={onNavigate} 
-            currentRoute={currentRoute} 
-          />
         </nav>
 
         {/* Right Utility Controls */}
         <div className="flex items-center gap-1.5 shrink-0">
-          {/* View Mode Selector (Explore Page) */}
-          {currentRoute === '/explore' && (
-            <div className="hidden xl:flex items-center bg-[#1E1E1E] border border-[#333333] p-0.5 min-h-[36px]">
-              {(['explore', 'raw', 'lineage'] as const).map((mode) => {
-                const searchParams = new URLSearchParams(window.location.search);
-                const currentInspect = searchParams.get('inspect') || 'explore';
-                const isActive = mode === 'explore' ? currentInspect === 'explore' : currentInspect === mode;
-                
-                return (
-                  <button
-                    key={mode}
-                    onClick={() => {
-                      if (mode === 'explore') {
-                        searchParams.delete('inspect');
-                      } else {
-                        searchParams.set('inspect', mode);
-                      }
-                      onNavigate(`/explore?${searchParams.toString()}`);
-                    }}
-                    className={`px-3 py-1.5 min-h-[36px] text-[10px] font-bold uppercase transition-colors cursor-pointer ${
-                      isActive
-                        ? 'bg-[#F7F7F3] text-[#111111]'
-                        : 'text-[#A0A0A0] hover:text-[#F7F7F3]'
-                    }`}
-                  >
-                    {mode}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-
-          {/* Compare Toggle */}
-          {currentRoute === '/explore' && (
-            <button
-              onClick={onToggleCompare}
-              className={`px-3 py-1.5 min-h-[36px] text-[11px] font-bold flex items-center gap-1.5 transition-colors cursor-pointer border ${
-                compareMode
-                  ? 'bg-amber-500 text-[#111111] border-amber-500'
-                  : 'bg-[#1E1E1E] text-[#A0A0A0] border-[#333333] hover:text-[#F7F7F3]'
-              }`}
-              title="Compare Pair A vs Pair B"
-            >
-              <SlidersHorizontal className="w-3.5 h-3.5 shrink-0" />
-              <span className="hidden sm:inline">COMPARE</span>
-            </button>
-          )}
-
           {/* Language Toggle */}
           <button
             onClick={onToggleLang}
@@ -258,60 +190,30 @@ export const Navigation: React.FC<NavigationProps> = ({
             </div>
 
             <div className="p-4 flex flex-col gap-6">
-              <div>
-                <h3 className="text-[10px] text-[#888888] font-bold mb-3 uppercase tracking-wider">PUBLIC</h3>
-                <nav className="flex flex-col gap-1">
-                  {publicNavItems.map((item) => {
-                    const Icon = item.icon;
-                    const isActive =
-                      currentRoute === item.route ||
-                      (item.route !== '/' && currentRoute.startsWith(item.route));
+              <nav className="flex flex-col gap-1">
+                {publicNavItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive =
+                    currentRoute === item.route ||
+                    (item.route !== '/' && currentRoute.startsWith(item.route));
 
-                    return (
-                      <Link
-                        key={item.route}
-                        to={item.route}
-                        onClick={() => setIsMobileMenuOpen(false)}
-                        className={`px-3 py-3 min-h-[44px] flex items-center gap-3 text-[13px] font-bold tracking-wider transition-colors cursor-pointer border-l-2 ${
-                          isActive
-                            ? 'bg-[#1E1E1E] text-[#E6461A] border-[#E6461A]'
-                            : 'text-[#A0A0A0] border-transparent hover:text-[#F7F7F3] hover:bg-[#1A1A1A]'
-                        }`}
-                      >
-                        <Icon className="w-4 h-4" />
-                        <span>{item.label}</span>
-                      </Link>
-                    );
-                  })}
-                </nav>
-              </div>
-
-              <div>
-                <h3 className="text-[10px] text-[#888888] font-bold mb-3 uppercase tracking-wider">{t.researchArchive}</h3>
-                <nav className="flex flex-col gap-1">
-                  {archiveNavItems.map((item) => {
-                    const Icon = item.icon;
-                    const isActive =
-                      currentRoute === item.route ||
-                      (item.route !== '/' && currentRoute.startsWith(item.route));
-
-                    return (
-                      <button
-                        key={item.route}
-                        onClick={() => handleMobileNavigate(item.route)}
-                        className={`px-3 py-3 min-h-[44px] flex items-center gap-3 text-[13px] font-bold tracking-wider transition-colors cursor-pointer border-l-2 ${
-                          isActive
-                            ? 'bg-[#1E1E1E] text-[#E6461A] border-[#E6461A]'
-                            : 'text-[#A0A0A0] border-transparent hover:text-[#F7F7F3] hover:bg-[#1A1A1A]'
-                        }`}
-                      >
-                        <Icon className="w-4 h-4" />
-                        <span>{item.label}</span>
-                      </button>
-                    );
-                  })}
-                </nav>
-              </div>
+                  return (
+                    <Link
+                      key={item.route}
+                      to={item.route}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className={`px-3 py-3 min-h-[44px] flex items-center gap-3 text-[13px] font-bold tracking-wider transition-colors cursor-pointer border-l-2 ${
+                        isActive
+                          ? 'bg-[#1E1E1E] text-[#E6461A] border-[#E6461A]'
+                          : 'text-[#A0A0A0] border-transparent hover:text-[#F7F7F3] hover:bg-[#1A1A1A]'
+                      }`}
+                    >
+                      <Icon className="w-4 h-4" />
+                      <span>{item.label}</span>
+                    </Link>
+                  );
+                })}
+              </nav>
             </div>
           </div>
         </div>

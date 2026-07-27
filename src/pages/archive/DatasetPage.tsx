@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { ProtoPathDatabase, SourceFeature } from '../domain/types';
-import { repository } from '../repositories/notationRepository';
+import { ProtoPathDatabase, SourceFeature } from '../../domain/types';
+import { repository } from '../../repositories/notationRepository';
 import { Database, Filter, Upload, FileCheck, AlertTriangle, Code, CheckCircle, Search } from 'lucide-react';
 
 interface DatasetPageProps {

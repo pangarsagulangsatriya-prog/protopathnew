@@ -8,7 +8,7 @@ import {
   DiagramAsset,
 } from '../../domain/types';
 import { TransformationStep } from './TransformationStepRail';
-import { Code, AlertCircle } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 
 interface ContextInspectorProps {
   activeStep: TransformationStep;
@@ -18,7 +18,6 @@ interface ContextInspectorProps {
   bodyImpulse?: BodyImpulse;
   spatialOutput?: SpatialOutput;
   diagramAsset?: DiagramAsset;
-  onOpenRawDrawer: () => void;
 }
 
 export const ContextInspector: React.FC<ContextInspectorProps> = ({
@@ -29,7 +28,6 @@ export const ContextInspector: React.FC<ContextInspectorProps> = ({
   bodyImpulse,
   spatialOutput,
   diagramAsset,
-  onOpenRawDrawer,
 }) => {
   return (
     <div className="w-full h-full bg-[#FFFFFF] border-l border-[#111111]/20 p-4 font-sans text-[#111111] overflow-y-auto scrollbar-thin">
@@ -73,13 +71,6 @@ export const ContextInspector: React.FC<ContextInspectorProps> = ({
               </div>
             </div>
 
-            <button
-              onClick={onOpenRawDrawer}
-              className="mt-6 w-full py-2 bg-[#111111] text-[#F7F7F3] hover:bg-[#E6461A] transition-colors font-mono text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <Code className="w-4 h-4" />
-              <span>VIEW RAW JSON</span>
-            </button>
           </div>
         </div>
       )}

@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
-import { ProtoPathDatabase } from '../domain/types';
-import { StageNotationCanvas } from '../notation/StageNotationCanvas';
-import { buildStageNotationModel } from '../notation/model/builder';
+import { ProtoPathDatabase } from '../../domain/types';
+import { StageNotationCanvas } from '../../notation/StageNotationCanvas';
+import { buildStageNotationModel } from '../../notation/model/builder';
 import { SlidersHorizontal, ArrowRight, Check, Zap, AlertTriangle } from 'lucide-react';
 
-interface CompareViewProps {
+interface ComparePageProps {
   db: ProtoPathDatabase;
-  onCloseCompare: () => void;
+  onCloseCompare?: () => void;
 }
 
-export const CompareView: React.FC<CompareViewProps> = ({ db, onCloseCompare }) => {
+export const ComparePage: React.FC<ComparePageProps> = ({ db, onCloseCompare }) => {
   const [syncZoom, setSyncZoom] = useState<boolean>(true);
 
   const pairA = db.notationPairs.find((p) => p.id === 'pair-c1-3-1');
