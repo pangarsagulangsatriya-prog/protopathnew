@@ -122,6 +122,86 @@ export interface SpatialOutput {
   residue: string[];
 }
 
+export interface Point {
+  x: number;
+  y: number;
+}
+
+export type RendererMode =
+  | 'simple-svg'
+  | 'hybrid'
+  | 'full-image';
+
+export interface NotationRenderPolicy {
+  preferredMode: RendererMode;
+  supportedModes: RendererMode[];
+  bodyAssetRequired: boolean;
+  fullBoardAssetId?: string | null;
+  fallbackMode: RendererMode;
+  visualComplexity: 'simple' | 'moderate' | 'complex';
+  reviewStatus:
+    | 'canonical'
+    | 'compatible-pending-review'
+    | 'legacy-draft'
+    | 'content-mismatch-review-required'
+    | 'missing';
+}
+
+export interface BodyVisualAsset {
+  id: string;
+  impulse: string;
+  pose: 'front' | 'three-quarter' | 'side' | 'top-oblique';
+  src: string;
+  width: number;
+  height: number;
+  transparentBackground: boolean;
+  anchorPoints: {
+    head?: Point;
+    cervicalSpine?: Point;
+    shoulderLeft?: Point;
+    shoulderRight?: Point;
+    elbowLeft?: Point;
+    elbowRight?: Point;
+    wristLeft?: Point;
+    wristRight?: Point;
+    handLeft?: Point;
+    handRight?: Point;
+    sternum?: Point;
+    spine?: Point;
+    pelvis?: Point;
+    hipLeft?: Point;
+    hipRight?: Point;
+    kneeLeft?: Point;
+    kneeRight?: Point;
+    ankleLeft?: Point;
+    ankleRight?: Point;
+    footLeft?: Point;
+    footRight?: Point;
+    centreOfGravity?: Point;
+    gripPoint?: Point;
+  };
+  source: 'curated-reference' | 'artist-supplied' | 'approved-generated' | 'fallback-vector';
+  reviewStatus: 'approved' | 'draft' | 'needs-review';
+}
+
+export interface FullBoardAsset {
+  id: string;
+  src: string;
+  pairOrUnitId: string;
+  claimedCodes: string[];
+  width: number;
+  height: number;
+  alt: string;
+  reviewStatus:
+    | 'canonical'
+    | 'compatible-pending-review'
+    | 'legacy-draft'
+    | 'content-mismatch-review-required';
+  mismatchNotes: string[];
+  sourceVersion?: string;
+}
+
+// Kept for backward compatibility while migrating DiagramAsset
 export interface DiagramAsset {
   id: string;
   pairId: string;
