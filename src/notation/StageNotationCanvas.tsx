@@ -11,7 +11,7 @@ import { getRenderPolicy } from '../domain/renderPolicy';
 interface StageNotationCanvasProps {
   model: StageNotationModel;
   activeStep?: 'data' | 'situation' | 'body' | 'output';
-  mode?: 'action' | 'stage' | 'body' | 'full-board';
+  mode?: 'action' | 'stage' | 'body' | 'full-board' | 'forces';
 }
 
 export const StageNotationCanvas: React.FC<StageNotationCanvasProps> = ({
@@ -42,7 +42,7 @@ export const StageNotationCanvas: React.FC<StageNotationCanvasProps> = ({
   let viewBox = "0 0 1200 700";
   if (mode === 'body') {
     viewBox = `${performerX - 150} ${performerY - 200} 300 350`;
-  } else if (mode === 'action') {
+  } else if (mode === 'action' || mode === 'forces') {
     viewBox = "100 150 900 400";
   }
 
@@ -100,13 +100,15 @@ export const StageNotationCanvas: React.FC<StageNotationCanvasProps> = ({
       )}
 
       {/* --- LAYER 1: DATA CONTEXT (Upper Left) --- */}
-      <g transform="translate(30, 80)" style={{ opacity: getOpacity('data'), transition: 'opacity 0.3s' }}>
-        <rect x="0" y="0" width="220" height="70" fill="#FFFFFF" stroke="#111111" strokeWidth="1.5" />
-        <rect x="0" y="0" width="220" height="20" fill="#F7F7F3" stroke="#111111" strokeWidth="1.5" />
-        <text x="10" y="14" fontFamily="monospace" fontSize="9" fontWeight="800" fill="#505050">DATA PROVOCATION</text>
-        <text x="10" y="40" fontFamily="monospace" fontSize="11" fontWeight="800" fill="#111111">SOURCE: {model.sourceState.featureType}</text>
-        <text x="10" y="58" fontFamily="monospace" fontSize="12" fontWeight="900" fill="#E6461A">{model.sourceState.rawValue}</text>
-      </g>
+      {(mode === 'stage' || mode === 'full-board') && (
+        <g transform="translate(30, 80)" style={{ opacity: getOpacity('data'), transition: 'opacity 0.3s' }}>
+          <rect x="0" y="0" width="220" height="70" fill="#FFFFFF" stroke="#111111" strokeWidth="1.5" />
+          <rect x="0" y="0" width="220" height="20" fill="#F7F7F3" stroke="#111111" strokeWidth="1.5" />
+          <text x="10" y="14" fontFamily="monospace" fontSize="9" fontWeight="800" fill="#505050">DATA PROVOCATION</text>
+          <text x="10" y="40" fontFamily="monospace" fontSize="11" fontWeight="800" fill="#111111">SOURCE: {model.sourceState.featureType}</text>
+          <text x="10" y="58" fontFamily="monospace" fontSize="12" fontWeight="900" fill="#E6461A">{model.sourceState.rawValue}</text>
+        </g>
+      )}
 
       {/* --- LAYER 2: STAGE PLAN (Center) --- */}
       <g style={{ opacity: getOpacity('situation'), transition: 'opacity 0.3s' }}>
@@ -127,7 +129,14 @@ export const StageNotationCanvas: React.FC<StageNotationCanvasProps> = ({
             <line x1="0" y1="-5" x2="0" y2="5" />
             <line x1={(model.checkpoint.distanceMeters ?? 0) * SCALE} y1="-5" x2={(model.checkpoint.distanceMeters ?? 0) * SCALE} y2="5" />
             <text x={((model.checkpoint.distanceMeters ?? 0) * SCALE) / 2} y="-10" fontFamily="monospace" fontSize="10" fill="#505050" textAnchor="middle">
-              {model.checkpoint.distanceMeters} m ORIGIN TO CHECKPOINT
+              {model.checkpoint.distanceMeters} m
+            </text>
+
+            {/* Remaining line */}
+            <line x1={(model.checkpoint.distanceMeters ?? 0) * SCALE} y1="0" x2={totalLengthPx} y2="0" />
+            <line x1={totalLengthPx} y1="-5" x2={totalLengthPx} y2="5" />
+            <text x={((model.checkpoint.distanceMeters ?? 0) * SCALE + totalLengthPx) / 2} y="-10" fontFamily="monospace" fontSize="10" fill="#505050" textAnchor="middle">
+              {(model.axis.lengthMeters - (model.checkpoint.distanceMeters ?? 0)).toFixed(2)} m
             </text>
           </g>
         )}
@@ -153,7 +162,7 @@ export const StageNotationCanvas: React.FC<StageNotationCanvasProps> = ({
         ))}
 
         {/* Forces */}
-        {model.forces.map(force => (
+        {mode !== 'action' && model.forces.map(force => (
           <ForceVector key={force.id} force={force} baseX={performerX} baseY={performerY} />
         ))}
       </g>

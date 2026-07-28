@@ -9,6 +9,13 @@ export type ValidationStatus =
   | 'invalid'
   | 'unresolved';
 
+export type AnalyticalView = 
+  | 'architectural' 
+  | 'stage-plan' 
+  | 'body' 
+  | 'forces' 
+  | 'full-board';
+
 export type SourceKind =
   | 'mapillary-feature'
   | 'score-bounds'

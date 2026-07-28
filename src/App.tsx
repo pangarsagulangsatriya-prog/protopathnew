@@ -6,6 +6,7 @@ import { repository } from './repositories/notationRepository';
 import { Navigation } from './components/Navigation';
 import { LandingPage } from './pages/LandingPage';
 import { getProtoVariants } from './motion/protoMotion';
+import { WipAnnouncementBar } from './components/landing/WipAnnouncementBar';
 
 // Lazy load heavy pages
 const ExplorePage = React.lazy(() => import('./pages/ExplorePage').then(module => ({ default: module.ExplorePage })));
@@ -88,6 +89,7 @@ const AppContent = () => {
 
   return (
     <div className="min-h-screen bg-[#F7F7F3] text-[#111111] font-sans selection:bg-[#E6461A] selection:text-[#F7F7F3] flex flex-col">
+      {location.pathname === '/' && <WipAnnouncementBar />}
       {location.pathname !== '/exhibition' && (
         <Navigation
           currentRoute={location.pathname}

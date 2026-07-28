@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { ProtoPathDatabase } from '../domain/types';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
+import { ProtoPathDatabase, AnalyticalView } from '../domain/types';
 import {
   getPairById,
   getSourceFeaturesForPair,
@@ -14,7 +14,10 @@ import { ExploreContextBar } from '../components/explore/ExploreContextBar';
 import { TransformationStepRail, TransformationStep } from '../components/explore/TransformationStepRail';
 import { ContextInspector } from '../components/explore/ContextInspector';
 import { PerformanceCanvas } from '../components/explore/PerformanceCanvas';
-import { CollapsibleTimeline } from '../components/explore/CollapsibleTimeline';
+import { MiniSequenceRail } from '../components/explore/MiniSequenceRail';
+import { AnalyticalTabs } from '../components/explore/AnalyticalTabs';
+import { FullBoardModal } from '../components/explore/FullBoardModal';
+import { getRenderPolicy, FULL_BOARD_REGISTRY } from '../domain/renderPolicy';
 
 interface ExplorePageProps {
   db: ProtoPathDatabase;
@@ -29,16 +32,29 @@ export const ExplorePage: React.FC<ExplorePageProps> = ({
   activePairId,
   onSelectPair,
 }) => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+
+  // Sync state from URL or fallback
+  const urlView = searchParams.get('view') as AnalyticalView | null;
+  const urlStep = searchParams.get('step') as TransformationStep | null;
+  const urlFrame = searchParams.get('frame');
+
   // Step state
-  const [activeStep, setActiveStep] = useState<TransformationStep>('data');
+  const [activeStep, setActiveStep] = useState<TransformationStep>(urlStep && STEPS.includes(urlStep) ? urlStep : 'data');
   
+  // View state
+  const validViews: AnalyticalView[] = ['architectural', 'stage-plan', 'body', 'forces'];
+  const [activeView, setActiveView] = useState<AnalyticalView>(urlView && validViews.includes(urlView) ? urlView : 'architectural');
+
   // Timeline state
-  const [currentFrameIndex, setCurrentFrameIndex] = useState<number>(0);
+  const [currentFrameIndex, setCurrentFrameIndex] = useState<number>(urlFrame ? parseInt(urlFrame, 10) : 0);
   
+  // Full Board Modal state
+  const [isFullBoardOpen, setIsFullBoardOpen] = useState(false);
+
   // Mobile Inspector Bottom Sheet (for mobile/tablet)
   const [isMobileInspectorOpen, setIsMobileInspectorOpen] = useState(false);
-
-
 
   // Selectors
   const activePair = getPairById(db, activePairId) || db.notationPairs[0];
@@ -54,18 +70,42 @@ export const ExplorePage: React.FC<ExplorePageProps> = ({
     .map(id => db.sequenceFrames.find(f => f.id === id))
     .filter((f): f is NonNullable<typeof f> => Boolean(f));
 
-  // Reset state when pair changes
+  // Sync state to URL when changed (without pushing history unnecessarily if we don't want to)
   useEffect(() => {
-    setCurrentFrameIndex(0);
-    setActiveStep('data');
+    const params = new URLSearchParams(searchParams);
+    let changed = false;
+    
+    if (params.get('view') !== activeView) {
+      params.set('view', activeView);
+      changed = true;
+    }
+    if (params.get('step') !== activeStep) {
+      params.set('step', activeStep);
+      changed = true;
+    }
+    if (params.get('frame') !== currentFrameIndex.toString()) {
+      params.set('frame', currentFrameIndex.toString());
+      changed = true;
+    }
+
+    if (changed) {
+      setSearchParams(params, { replace: true });
+    }
+  }, [activeView, activeStep, currentFrameIndex, searchParams, setSearchParams]);
+
+  // Reset state when pair changes, ONLY if not explicitly deep linking
+  useEffect(() => {
+    if (!searchParams.get('pair') && !searchParams.get('view')) {
+      setCurrentFrameIndex(0);
+      setActiveStep('data');
+      setActiveView('action');
+    }
   }, [activePair.id]);
 
   // Keyboard navigation for steps
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Ignore if user is typing in an input
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
-
       const currentIndex = STEPS.indexOf(activeStep);
       
       switch (e.key) {
@@ -97,15 +137,16 @@ export const ExplorePage: React.FC<ExplorePageProps> = ({
       <ExploreContextBar 
         db={db}
         activePair={activePair}
-        onSelectPair={onSelectPair}
+        onSelectPair={(id) => {
+          onSelectPair(id);
+          // Update URL pair parameter when selecting from context bar
+          const params = new URLSearchParams(searchParams);
+          params.set('pair', id);
+          setSearchParams(params);
+        }}
       />
 
       {/* 2. MAIN LAYOUT GRID */}
-      {/* 
-        Mobile: flex-col (rail horizontal, canvas, accordion)
-        Tablet: grid 12 cols (2 rail, 10 canvas)
-        Desktop: grid 12 cols (2 rail, 7 canvas, 3 inspector)
-      */}
       <div className="flex-1 flex flex-col xl:grid xl:grid-cols-12 gap-0 overflow-visible xl:overflow-hidden relative">
         
         {/* Left: Step Rail (2 cols) */}
@@ -124,18 +165,28 @@ export const ExplorePage: React.FC<ExplorePageProps> = ({
           />
         </div>
 
-        {/* Center: Performance Canvas (10 cols on tablet, 7 cols on desktop) */}
-        <div className="flex-1 h-[60vh] md:h-auto xl:col-span-7 overflow-hidden bg-[#F7F7F3]">
-          <PerformanceCanvas
-            activeStep={activeStep}
-            pair={activePair}
-            diagramAsset={diagramAsset}
-            db={db}
+        {/* Center: Performance Canvas (7 cols on desktop) */}
+        <div className="flex-1 h-[60vh] md:h-auto xl:col-span-7 overflow-hidden bg-[#F7F7F3] flex flex-col">
+          <AnalyticalTabs 
+            activeView={activeView} 
+            onSelectView={setActiveView} 
+            onOpenFullBoard={() => setIsFullBoardOpen(true)} 
           />
+          <div className="flex-1 overflow-hidden">
+            <PerformanceCanvas
+              activeStep={activeStep}
+              pair={activePair}
+              diagramAsset={diagramAsset}
+              db={db}
+              activeView={activeView}
+              currentFrameIndex={currentFrameIndex}
+              onSelectFrame={setCurrentFrameIndex}
+            />
+          </div>
         </div>
 
-        {/* Right: Context Inspector (3 cols on desktop, hidden in drawer on tablet/mobile) */}
-        <div className="hidden xl:block xl:col-span-3 overflow-hidden bg-[#FFFFFF]">
+        {/* Right: Context Inspector (3 cols on desktop) */}
+        <div className="hidden xl:flex flex-col xl:col-span-3 overflow-hidden bg-[#FFFFFF] border-l border-[#111111]/20">
           <ContextInspector
             activeStep={activeStep}
             sourceFeature={sourceFeature}
@@ -146,7 +197,7 @@ export const ExplorePage: React.FC<ExplorePageProps> = ({
             diagramAsset={diagramAsset}
             onOpenRawDrawer={() => {}}
           />
-          <div className="p-3 border-t border-[#111111]/20">
+          <div className="p-3 border-t border-[#111111]/20 mt-auto">
             <button 
               onClick={() => window.location.href = `/archive/score/${activePairId}`}
               className="w-full py-2 bg-[#EFEFEB] hover:bg-[#111111] hover:text-[#F7F7F3] border border-[#111111] font-mono text-[9px] font-bold uppercase transition-colors flex items-center justify-center gap-2"
@@ -185,12 +236,24 @@ export const ExplorePage: React.FC<ExplorePageProps> = ({
 
       {/* 3. COLLAPSIBLE TIMELINE (Bottom) */}
       <div className="z-40">
-        <CollapsibleTimeline
+        <MiniSequenceRail
           sequenceFrames={activeSequenceFrames}
           currentFrameIndex={currentFrameIndex}
           onSelectFrame={setCurrentFrameIndex}
         />
       </div>
+
+      {/* FULL BOARD MODAL OVERLAY */}
+      {isFullBoardOpen && (
+        <FullBoardModal 
+          asset={
+            getRenderPolicy(activePair, db).fullBoardAssetId 
+              ? FULL_BOARD_REGISTRY[getRenderPolicy(activePair, db).fullBoardAssetId!] 
+              : FULL_BOARD_REGISTRY['diagram-c1-3-1'] // fallback
+          }
+          onClose={() => setIsFullBoardOpen(false)} 
+        />
+      )}
     </div>
   );
 };

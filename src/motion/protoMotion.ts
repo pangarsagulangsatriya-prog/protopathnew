@@ -2,8 +2,8 @@ export const protoEase = [0.22, 1, 0.36, 1]; // standard architectural ease
 
 export const duration = {
   instant: 0.12,
-  fast: 0.2,
-  standard: 0.36,
+  fast: 0.16, // 160ms for hover interactions
+  standard: 0.32, // 320ms for reveals and layouts
   slow: 0.7,
   sequence: 1.2
 };

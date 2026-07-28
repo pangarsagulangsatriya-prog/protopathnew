@@ -117,21 +117,24 @@ export const Navigation: React.FC<NavigationProps> = ({
               <Link
                 key={item.route}
                 to={item.route}
-                className={`relative px-3 py-1.5 min-h-[36px] flex items-center gap-1.5 text-[12px] font-bold tracking-wider transition-colors cursor-pointer border ${
-                  isActive
-                    ? 'text-[#F7F7F3] border-[#333333]'
-                    : 'bg-[#1E1E1E] text-[#A0A0A0] border-[#333333] hover:text-[#F7F7F3] hover:bg-[#2A2A2A]'
-                }`}
+                className="relative px-3 py-1.5 min-h-[36px] flex items-center gap-1.5 text-[12px] font-bold tracking-wider cursor-pointer group"
               >
+                <div className={`flex items-center gap-1.5 transition-colors duration-[160ms] ${
+                  isActive ? 'text-[#F7F7F3]' : 'text-[#888888] group-hover:text-[#F7F7F3]'
+                }`}>
+                  <Icon className="w-3.5 h-3.5 shrink-0 relative z-10" />
+                  <span className="relative z-10">{item.label}</span>
+                </div>
+                
+                {/* Active marker */}
                 {isActive && (
-                  <motion.div
-                    layoutId="nav-active-bg"
-                    className="absolute inset-0 bg-[#E6461A] z-0"
-                    transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                  />
+                  <div className="absolute left-0 bottom-0 w-full h-[2px] bg-[#E6461A]" />
                 )}
-                <Icon className="w-3.5 h-3.5 shrink-0 relative z-10" />
-                <span className="relative z-10">{item.label}</span>
+                
+                {/* Hover line */}
+                {!isActive && (
+                  <div className="absolute left-0 bottom-0 h-[2px] bg-[#E6461A] w-0 group-hover:w-full transition-all duration-[160ms] ease-out" />
+                )}
               </Link>
             );
           })}
